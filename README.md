@@ -7,7 +7,11 @@
 ## Daftar Isi
 
 - [Ruang Lingkup dan Batasan Pengguna](#ruang-lingkup-dan-batasan-pengguna)
-- [Latar Belakang dan Permasalahan di Kampus](#latar-belakang-dan-permasalahan-di-kampus)
+- [Big Picture Permasalahan](#big-picture-permasalahan)
+- [Alasan Pemilihan Judul](#alasan-pemilihan-judul)
+- [Manfaat Proyek](#manfaat-proyek)
+  - [Manfaat bagi Pengembang (Saya)](#manfaat-bagi-pengembang-saya)
+  - [Manfaat bagi Orang Lain dan Lingkungan Kampus](#manfaat-bagi-orang-lain-dan-lingkungan-kampus)
 - [Solusi yang Dihadirkan](#solusi-yang-dihadirkan)
 - [Fitur Utama Aplikasi](#fitur-utama-aplikasi)
 - [Algoritma Pencocokan Otomatis (Match Engine)](#algoritma-pencocokan-otomatis-match-engine)
@@ -26,22 +30,73 @@
 
 Platform ini secara eksklusif diperuntukkan bagi lingkungan internal **Universitas Pradita (Pradita University)**:
 
-- **Pengguna Berhak**: Mahasiswa aktif, dosen, staf akademik, serta petugas keamanan/operasional kampus Universitas Pradita.
+- **Pengguna Berhak**: Mahasiswa aktif, dosen, staf akademik, serta petugas keamanan dan fasilitas kampus Universitas Pradita.
 - **Identitas Akun**: Berbasis Nomor Induk Mahasiswa (NIM) atau alamat surel institusi resmi kampus (`@student.pradita.ac.id` untuk mahasiswa dan `@pradita.ac.id` untuk dosen/staf).
-- **Cakupan Wilayah Operasional**: Terbatas pada area gedung kampus Universitas Pradita (Scientia Business Park, Gading Serpong, Tangerang), meliputi ruang perkuliahan, laboratorium, perpustakaan, kafetaria/lounge mahasiswa, sarana olahraga, hingga area parkir kendaraan.
+- **Cakupan Wilayah Operasional**: Terbatas pada area gedung kampus Universitas Pradita (Scientia Business Park, Gading Serpong, Tangerang), meliputi ruang perkuliahan, laboratorium komputer dan desain, perpustakaan, student lounge, kafetaria, sarana olahraga, hingga area parkir kendaraan.
 
 ---
 
-## Latar Belakang dan Permasalahan di Kampus
+## Big Picture Permasalahan
 
-Aktivitas perkuliahan dan mobilitas tinggi mahasiswa Universitas Pradita di berbagai fasilitas kampus kerap menimbulkan insiden barang tertinggal atau hilang, seperti laptop perkuliahan, Kartu Tanda Mahasiswa (KTM Pradita), botol minum/tumbler, kunci kendaraan, modul kuliah, dompet, hingga perangkat elektronik pendukung tugas akhir. 
+Dalam rutinitas perkuliahan di lingkungan kampus Universitas Pradita yang dinamis dan padat jadwal, mobilitas mahasiswa berpindah antar ruang kelas teori, laboratorium komputer/desain, perpustakaan, hingga area kafetaria terjadi secara berulang setiap hari. Tingginya frekuensi perpindahan ini kerap memicu insiden barang tertinggal atau hilang.
 
-Pendekatan konvensional yang selama ini digunakan di lingkungan kampus memiliki keterbatasan nyata:
+Melihat gambaran besarnya (*Big Picture*), permasalahan ini bukan sekadar insiden kelalaian individu, melainkan kegagalan sistemik dari rantai penanganan informasi konvensional di kampus:
 
-1. **Informasi Tersebar dan Tidak Terpusat**: Laporan barang hilang sering kali hanya disebarkan melalui grup percakapan WhatsApp angkatan/kelas atau broadcast media sosial yang cepat tertimbun pesan baru.
-2. **Ketiadaan Direktori Pencarian Terstruktur**: Mahasiswa korban kehilangan kesulitan menelusuri laporan temuan karena tidak adanya filter kategori barang, tanggal kejadian, atau lokasi spesifik di kampus Pradita.
-3. **Risiko Klaim Sepihak Tanpa Verifikasi**: Penemu barang atau petugas resepsionis kesulitan memvalidasi keabsahan pihak yang mengaku sebagai pemilik sah.
-4. **Status Barang Tidak Terbarui**: Laporan barang yang sejatinya telah kembali tetap beredar di grup percakapan sehingga memicu kerancuan informasi.
+1. **Fragmentasi Saluran dan Informasi yang Cepat Lenyap (Information Silos & Ephemeral Channels)**:
+   Saat kehilangan barang, mahasiswa cenderung menyebarkan pesan siaran di grup percakapan kelas (WhatsApp/Telegram) atau mengunggah Instagram Story. Informasi ini bersifat sementara, cepat tenggelam oleh percakapan baru, dan tidak memiliki rekam jejak digital yang dapat ditelusuri kembali oleh civitas kampus lainnya.
+2. **Disrupsi Finansial, Waktu, dan Fokus Akademik**:
+   Barang-barang yang tertinggal sering kali bernilai kritis bagi kelangsungan studi mahasiswa, seperti laptop perkuliahan yang memuat berkas tugas akhir/skripsi, Kartu Tanda Mahasiswa (KTM Pradita) yang memerlukan biaya penggantian dan birokrasi administratif, charger perangkat, kunci kendaraan, hingga dokumen akademik berharga.
+3. **Ketiadaan Sistem Temu Kembali Terkoordinasi bagi Penemu Barang**:
+   Mahasiswa atau staf yang menemukan barang tertinggal sering kali berada pada posisi serba salah. Menitipkan ke meja resepsionis atau satpam kerap berujung pada penumpukan fisik barang tak bertuan di loker keamanan kampus tanpa pencatatan digital yang dapat diakses publik mahasiswa.
+4. **Kerentanan Keamanan dan Risiko Klaim Palsu**:
+   Penyerahan barang berharga melalui jalur pesan pribadi tanpa mekanisme verifikasi spesifik membuka celah bagi pihak yang berniat buruk untuk melakukan klaim palsu atas barang yang bukan miliknya.
+5. **Ketiadaan Status Penyelesaian (Redundansi Berkelanjutan)**:
+   Pada sistem manual, informasi kehilangan tetap beredar berminggu-minggu meskipun barang sejatinya telah kembali ke pemiliknya, menciptakan kebingungan dan misinformasi di kalangan mahasiswa.
+
+---
+
+## Alasan Pemilihan Judul
+
+Judul proyek ini dirumuskan sebagai:
+**"Lost And Found — Platform Pelaporan Barang Hilang & Ditemukan Mahasiswa Universitas Pradita"**
+
+Alasan fundamental di balik pemilihan judul ini adalah:
+
+1. **Ketegasan dan Kejelasan Fungsionalitas (*Self-Explanatory & Direct*)**:
+   Istilah *Lost And Found* merupakan terminologi standar global yang langsung dipahami oleh seluruh kalangan mahasiswa maupun dosen tanpa ambiguitas, mencerminkan dua pilar fungsi utama: melayani korban kehilangan (*Lost*) dan memfasilitasi penemu barang (*Found*).
+2. **Penegasan Entitas dan Eksklusivitas Komunitas (*Pradita University Scoped*)**:
+   Pencantuman identitas *Universitas Pradita* menegaskan bahwa platform ini adalah sistem terisolasi khusus civitas akademika kampus, bukan platform publik umum. Hal ini krusial untuk menjamin kerahasiaan data pribadi mahasiswa serta memastikan bahwa proses penyerahan barang secara fisik dapat dilakukan secara efisien langsung di area kampus.
+3. **Representasi Solusi Berbasis Rekayasa Perangkat Lunak (*Platform-Based Approach*)**:
+   Penggunaan kata *Platform* menandakan bahwa sistem ini bukan sekadar formulir isian statis atau papan buletin digital biasa, melainkan sebuah aplikasi web utuh (*Single Page Application*) yang mengintegrasikan mesin kecocokan otomatis (*Automated Match Engine*), kontrol otentikasi peran, sistem pesan terproteksi, dan manajemen status siklus hidup barang.
+
+---
+
+## Manfaat Proyek
+
+### Manfaat bagi Pengembang (Saya)
+1. **Penerapan Praktis Prinsip Rekayasa Perangkat Lunak Berbasis Web (RPL WEB)**:
+   Mengimplementasikan seluruh siklus hidup pengembangan perangkat lunak (SDLC) secara mandiri—mulai dari analisis kebutuhan pengguna nyata di kampus, perancangan antarmuka pengguna berbasis standar minimalisme institusional, hingga implementasi kode modular client-side.
+2. **Penguasaan Teknologi Arsitektur Web Modern**:
+   Mendalami konsep arsitektur Single Page Application (SPA) murni dengan **Vanilla JavaScript ES Modules**, CSS Custom Properties (Design Tokens), hash-based routing, dan state store reaktif tanpa ketergantungan framework berat.
+3. **Pengembangan Logika Algoritma & Problem Solving**:
+   Merancang dan menguji algoritma *Weighted Heuristic Match Engine* yang mampu menghitung skor kecocokan antara dua entitas data secara deterministik berdasarkan pembobotan tokenisasi kata kunci, kategori, dan lokasi.
+4. **Portofolio Nyata yang Bermanfaat Langsung bagi Almamater**:
+   Membangun portofolio rekayasa perangkat lunak aplikatif yang relevan dan solutif untuk memecahkan problem nyata di lingkungan perguruan tinggi sendiri.
+
+### Manfaat bagi Orang Lain dan Lingkungan Kampus
+1. **Bagi Mahasiswa Korban Kehilangan**:
+   - Memangkas waktu pencarian secara drastis melalui katalog terpusat dan filter spesifik zona kampus Pradita.
+   - Mengurangi beban kepanikan dan stres akademik akibat hilangnya dokumen perkuliahan atau perangkat studi penting.
+   - Melindungi privasi kontak pribadi melalui formulir pesan klaim terproteksi.
+2. **Bagi Mahasiswa dan Civitas Penemu Barang**:
+   - Memberikan wadah yang aman dan terpercaya untuk menyalurkan niat baik penemuan barang tanpa khawatir dicurigai.
+   - Memudahkan pembuktian kepemilikan melalui instrumen verifikasi ciri rahasia dan kepemilikan KTM Pradita.
+3. **Bagi Petugas Keamanan, Resepsionis, dan Manajemen Kampus Pradita**:
+   - Mencegah penumpukan fisik barang tak bertuan di pos keamanan melalui inventarisasi digital transparan.
+   - Mempermudah staf operasional kampus dalam memantau histori barang yang telah terselesaikan (*Returned*) dengan audit log yang jelas.
+4. **Bagi Institusi Universitas Pradita**:
+   - Membangun ekosistem kampus digital yang modern, transparan, dan saling peduli.
+   - Memupuk budaya integritas, kejujuran, dan empati sosial di kalangan mahasiswa Universitas Pradita.
 
 ---
 
