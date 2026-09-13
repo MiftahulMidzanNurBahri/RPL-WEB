@@ -1,219 +1,208 @@
-# 🔍 Lost And Found — Platform Pelaporan Barang Hilang & Ditemukan (RPL WEB)
+# Lost And Found — Platform Pelaporan Barang Hilang & Ditemukan (RPL WEB)
 
-[![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![CSS3](https://img.shields.io/badge/CSS3-Vanilla%20Design%20System-1572B6?style=flat-square&logo=css3&logoColor=white)](https://www.w3.org/Style/CSS/)
-[![License](https://img.shields.io/badge/License-Academic%20%2F%20MIT-green?style=flat-square)](#-lisensi--hak-cipta)
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=flat-square)](#)
-
-> **Lost And Found** adalah platform web Single Page Application (SPA) modern, elegan, minimalis, dan berstandar institusional yang dirancang untuk mengatasi permasalahan pelaporan dan penemuan barang tertinggal atau hilang di lingkungan kampus maupun fasilitas publik.
+> Lost And Found adalah platform web Single Page Application (SPA) yang dirancang untuk mengelola pelaporan dan penemuan barang tertinggal atau hilang di lingkungan kampus maupun fasilitas publik secara terpusat, transparan, dan terverifikasi.
 
 ---
 
-## 📑 Daftar Isi
+## Daftar Isi
 
-- [Latar Belakang & Masalah](#-latar-belakang--permasalahan)
-- [Solusi yang Dihadirkan](#-solusi-yang-dihadirkan)
-- [Fitur Utama Aplikasi](#-fitur-utama-aplikasi)
-- [Algoritma Pencocokan Otomatis (Match Engine)](#-algoritma-pencocokan-otomatis-match-engine)
-- [Alur Kerja Pengguna (User Journey)](#-alur-kerja-pengguna-user-journey)
-- [Arsitektur & Konsep Desain](#-arsitektur--konsep-desain)
-- [Struktur Data (LocalStorage Schema)](#-struktur-data-localstorage-schema)
-- [Struktur Direktori Proyek](#-struktur-direktori-proyek)
-- [Panduan Instalasi & Penggunaan](#-panduan-instalasi--menjalankan-aplikasi)
-- [Kredensial Akun Demo](#-kredensial-akun-demo)
-- [Skenario Pengujian Fitur](#-skenario-pengujian-fitur)
-- [Lisensi & Hak Cipta](#-lisensi--hak-cipta)
-
----
-
-## 🎯 Latar Belakang & Permasalahan
-
-Di area kampus yang luas dan ramai, barang tertinggal atau hilang seperti laptop, kartu mahasiswa (KTM), botol minum, kunci motor, hingga dompet merupakan kejadian sehari-hari. Selama ini, solusi yang digunakan sering kali tidak efektif:
-
-1. **Penyebaran Informasi Terfragmentasi**: Informasi tercecer di berbagai grup chat WhatsApp/Telegram, story Instagram, atau papan pengumuman fisik yang cepat tenggelam.
-2. **Tidak Ada Pencarian Terpusat**: Korban kehilangan harus menggulir ratusan pesan tanpa filter kategori, tanggal, atau lokasi.
-3. **Risiko Klaim Palsu**: Penemu barang kesulitan memverifikasi apakah orang yang menghubungi benar-benar pemilik sah barang tersebut.
-4. **Tidak Ada Status Penyelesaian**: Laporan lama yang barangnya sudah kembali tetap beredar dan menimbulkan kebingungan.
+- [Latar Belakang dan Permasalahan](#latar-belakang-dan-permasalahan)
+- [Solusi yang Dihadirkan](#solusi-yang-dihadirkan)
+- [Fitur Utama Aplikasi](#fitur-utama-aplikasi)
+- [Algoritma Pencocokan Otomatis (Match Engine)](#algoritma-pencocokan-otomatis-match-engine)
+- [Alur Kerja Pengguna (User Journey)](#alur-kerja-pengguna-user-journey)
+- [Arsitektur dan Konsep Desain](#arsitektur-dan-konsep-desain)
+- [Struktur Data (LocalStorage Schema)](#struktur-data-localstorage-schema)
+- [Struktur Direktori Proyek](#struktur-direktori-proyek)
+- [Panduan Instalasi dan Menjalankan Aplikasi](#panduan-instalasi-dan-menjalankan-aplikasi)
+- [Kredensial Akun Demo](#kredensial-akun-demo)
+- [Skenario Pengujian Fitur](#skenario-pengujian-fitur)
+- [Lisensi dan Hak Cipta](#lisensi-dan-hak-cipta)
 
 ---
 
-## 💡 Solusi yang Dihadirkan
+## Latar Belakang dan Permasalahan
 
-Platform **Lost And Found** hadir sebagai pusat layanan terpadu (*centralized hub*) dengan pendekatan **SaaS Institutional Minimalism**:
+Di area kampus yang luas dan memiliki mobilitas tinggi, insiden barang tertinggal atau hilang seperti laptop, kartu tanda mahasiswa (KTM), botol minum, kunci kendaraan, hingga dokumen penting merupakan permasalahan rutin. Pendekatan konvensional yang umum digunakan memiliki sejumlah kelemahan:
 
-- 🗂️ **Katalog Publik Terbuka & Real-time**: Seluruh laporan tersusun rapi dengan status visual yang jelas (*Lost*, *Found*, *Returned*).
-- ⚡ **Pencarian Cepat & Filter Multi-Kriteria**: Pencarian kata kunci dengan *live debounce*, filter status, kategori, lokasi gedung, serta pengurutan waktu.
-- 🤖 **Automated Match Detection Engine**: Algoritma pencocokan cerdas yang secara otomatis mendeteksi kecocokan antara laporan barang hilang dan temuan berdasarkan kesamaan kategori, teks judul, dan lokasi.
-- 🔒 **Verifikasi Kepemilikan yang Aman**: Pelapor dapat menyembunyikan tanda rahasia (seperti nomor seri atau ciri fisik tertentu) yang wajib dibuktikan oleh pihak pengklaim melalui formulir pesan terproteksi.
-- 📊 **Dashboard Manajemen Pengguna**: Pengguna memiliki kendali penuh untuk memantau status laporan mereka, mengedit rincian barang, menandai barang yang telah kembali (*Resolved/Returned*), serta meninjau daftar calon barang yang cocok.
+1. **Penyebaran Informasi Terfragmentasi**: Informasi tersebar di berbagai saluran tidak resmi seperti grup chat, media sosial, atau papan pengumuman fisik yang cepat tertimbun.
+2. **Ketiadaan Pencarian Terpusat**: Korban kehilangan harus memeriksa ratusan percakapan manual tanpa filter kategori, tanggal, maupun lokasi.
+3. **Risiko Klaim Sepihak**: Penemu barang kesulitan memverifikasi keabsahan klaim kepemilikan dari pihak yang menghubungi.
+4. **Ketidakjelasan Status Penyelesaian**: Laporan lama yang barangnya telah kembali tetap beredar dan menimbulkan redundansi informasi.
 
 ---
 
-## 🚀 Fitur Utama Aplikasi
+## Solusi yang Dihadirkan
+
+Platform Lost And Found menghadirkan repositori dan pusat layanan terpadu dengan pendekatan sistematis:
+
+- **Katalog Publik Terbuka & Real-Time**: Seluruh laporan tersusun secara terstruktur dengan indikator status visual (Lost, Found, Returned).
+- **Pencarian Cepat & Filter Multi-Kriteria**: Pencarian teks dengan mekanisme debouncing, penyaringan berdasarkan status, kategori, lokasi gedung, serta pengurutan kronologis.
+- **Automated Match Detection Engine**: Algoritma pencocokan cerdas yang secara otomatis mendeteksi korelasi antara laporan barang hilang dan temuan berdasarkan bobot kesamaan kategori, kata kunci judul, dan lokasi.
+- **Verifikasi Kepemilikan yang Aman**: Pelapor dapat menyimpan catatan tanda khusus terproteksi yang wajib dibuktikan oleh pihak pengklaim melalui formulir pesan terenkripsi secara fungsional.
+- **Dashboard Manajemen Pengguna**: Pengguna memiliki visibilitas penuh untuk memantau status laporan aktif, memperbarui data, menandai status selesai (Returned), dan meninjau rekomendasi barang yang cocok.
+
+---
+
+## Fitur Utama Aplikasi
 
 ### 1. Halaman Beranda (Landing & Home Page)
-- **Hero Banner Interaktif**: Pesan sambutan yang jelas, tombol aksi cepat *"Report Lost Item"* dan *"Report Found Item"*, serta kolom pencarian terintegrasi yang langsung mengarahkan ke katalog.
-- **Statistik Dinamis (Live Counter Cards)**: Menampilkan metrik real-time:
+- **Hero Section**: Navigasi ringkas dengan aksi cepat pelaporan barang hilang (*Report Lost Item*) dan barang ditemukan (*Report Found Item*), disertai bar pencarian cepat terintegrasi.
+- **Statistik Dinamis (Live Metric Cards)**: Menampilkan metrik real-time:
   - Total Barang Hilang (*Lost Items Count*)
   - Total Barang Ditemukan (*Found Items Count*)
   - Barang Berhasil Dikembalikan (*Resolved/Returned Count*)
-- **Daftar Laporan Terbaru**: Menampilkan kartu barang terkini lengkap dengan badge status visual, tanggal pelaporan, foto, dan lokasi.
-- **Panduan Alur 4 Langkah (*How It Works*)**:
-  1. *Report an Item* (Laporkan barang hilang atau barang yang Anda temukan)
-  2. *Search & Match* (Jelajahi katalog dan manfaatkan deteksi kecocokan sistem)
-  3. *Contact & Verify* (Kirim pesan verifikasi kepada pelapor)
-  4. *Get It Back* (Lakukan serah terima fisik secara aman)
+- **Daftar Laporan Terkini**: Menampilkan ringkasan barang yang baru dilaporkan lengkap dengan status, tanggal, dan lokasi.
+- **Panduan Alur Kerja (How It Works)**: Edukasi 4 tahapan sistematis (Laporkan, Cari & Cocokkan, Verifikasi, Serah Terima).
 
-### 2. Katalog & Pencarian Barang (Search & Directory Page)
-- **Live Debounced Search**: Pencarian teks instan pada nama barang, deskripsi, dan catatan khusus tanpa membebani performa browser.
+### 2. Katalog dan Pencarian Barang (Search & Directory Page)
+- **Live Debounced Search**: Pencarian kata kunci instan pada judul, deskripsi, dan lokasi tanpa degradasi performa render.
 - **Filter Status Tersegmentasi**:
   - `Semua Status` (All Items)
   - `Barang Hilang` (Lost Items Only)
   - `Barang Ditemukan` (Found Items Only)
-- **Filter Kategori**: Elektronik, Kartu & ID, Kunci, Dompet & Tas, Buku & Dokumen, Pakaian, Kacamata, dan Lainnya.
-- **Filter Lokasi Kampus**: Perpustakaan Pusat, Gedung Kuliah Bersama, Laboratorium Komputer, Kantin / Kafetaria, Lapangan Olahraga, Area Parkir, Musholla/Masjid Kampus.
-- **Pengurutan Fleksibel**: Berdasarkan yang terbaru (*Newest First*) atau terlama (*Oldest First*).
-- **Active Filter Chips**: Tag visual filter aktif yang dapat dihapus per elemen atau dibersihkan sekaligus melalui tombol *Reset Filters*.
-- **Empty State Informatif**: Memberikan saran pencarian ketika tidak ada barang yang sesuai dengan kriteria filter.
+- **Filter Kategori Terstruktur**: Elektronik, Kartu & ID, Kunci, Dompet & Tas, Buku & Dokumen, Pakaian, Kacamata, dan Lainnya.
+- **Filter Lokasi Kampus**: Perpustakaan Pusat, Gedung Kuliah Bersama, Laboratorium Komputer, Kantin, Fasilitas Olahraga, Area Parkir, dan Tempat Ibadah Kampus.
+- **Pengurutan Fleksibel**: Berdasarkan kronologi terbaru (*Newest First*) atau terlama (*Oldest First*).
+- **Active Filter Chips**: Ringkasan filter aktif yang dapat dihapus secara individual atau direset sekaligus.
+- **State Kosong Informatif**: Panduan pencarian ketika parameter filter tidak menghasilkan data.
 
 ### 3. Formulir Pelaporan Barang (Report Item Page)
-- **Dua Mode Pelaporan**: Sakelar cepat *"Saya Kehilangan Barang"* (Lost) vs *"Saya Menemukan Barang"* (Found).
-- **Formulir Metadata Terstruktur**:
-  - Judul / Nama Barang
-  - Kategori & Lokasi Spesifik
-  - Tanggal & Perkiraan Waktu Kejadian
-  - Deskripsi Detail
-  - Informasi Rahasia / Tanda Khusus (untuk validasi klaim kepemilikan)
-- **Upload Gambar & Demo Foto Cepat**:
-  - Mendukung unggah gambar dari penyimpanan lokal dengan konversi instan ke Data URL dan pratinjau langsung (*live preview*).
-  - Dilengkapi **8 preset foto demo instan** (Laptop, Earphone, Kunci, Dompet, Ransel, Kacamata, Botol Minum, Kalkulator Ilmiah) untuk kemudahan pengujian tanpa perlu menyiapkan gambar sendiri.
-- **Data Kontak Pelapor**: Nama, email institusi, dan nomor telepon kontak yang valid.
-- **Deteksi Kecocokan Instan**: Notifikasi cerdas langsung muncul saat pelapor mengisi form jika sistem menemukan barang berlawanan yang berpotensi cocok.
+- **Mode Pelaporan Ganda**: Pilihan tipe laporan (*Saya Kehilangan Barang* vs *Saya Menemukan Barang*).
+- **Input Metadata Terstandarisasi**:
+  - Nama / Judul Barang
+  - Kategori dan Lokasi Spesifik
+  - Tanggal dan Estimasi Waktu Kejadian
+  - Deskripsi Karakteristik Barang
+  - Tanda Khusus / Ciri Rahasia (untuk keperluan verifikasi klaim)
+- **Unggah Gambar & Preset Pengujian**:
+  - Unggah berkas gambar lokal dengan konversi otomatis ke format Data URL dan pratinjau langsung.
+  - Pilihan 8 preset gambar instan (Laptop, Earphone, Kunci, Dompet, Ransel, Kacamata, Botol Minum, Kalkulator) untuk efisiensi pengujian.
+- **Data Kontak Pelapor**: Nama, email institusi, dan nomor telepon aktif.
+- **Notifikasi Potensi Kecocokan Instan**: Peringatan proaktif saat pelapor mengisi formulir apabila ditemukan laporan berlawanan yang memiliki kesamaan data.
 
-### 4. Modal Detail Barang & Kontak Pelapor (Detail & Claim Modal)
-- **Tampilan Gambar Resolusi Tinggi**: Dilengkapi mekanisme *fallback image* jika URL gambar gagal dimuat.
-- **Informasi Lengkap Insiden**: Badge status, kategori, ID Referensi unik laporan, lokasi persis, tanggal, dan waktu kejadian.
-- **Kotak Verifikasi Klaim**: Panduan bagi pemilik untuk menyebutkan ciri-ciri khusus barang sebelum menghubungi penemu.
-- **Banner Rekomendasi Kecocokan**: Menampilkan saran perbandingan dengan barang yang berpotensi merupakan pasangannya.
-- **Formulir Kontak Aman**: Kirim pesan verifikasi atau klaim langsung ke pelapor tanpa membocorkan nomor kontak pribadi secara sembarangan.
-- **Aksi Khusus Pemilik**:
-  - Tandai barang sebagai *Returned / Resolved* (Selesai).
-  - Edit informasi laporan secara langsung.
-  - Hapus laporan dengan dialog konfirmasi aman.
+### 4. Modal Detail Barang dan Verifikasi Klaim
+- **Tampilan Media Resolusi Tinggi**: Dilengkapi penanganan fallback gambar ketika URL eksternal tidak dapat diakses.
+- **Metadata Lengkap Insiden**: Status, kategori, ID Referensi unik, lokasi spesifik, tanggal, dan waktu kejadian.
+- **Panel Verifikasi Kepemilikan**: Panduan bagi pemilik untuk memberikan pembuktian identitas barang sebelum proses serah terima.
+- **Formulir Kontak Terarah**: Pengiriman pesan klarifikasi atau klaim langsung ke pelapor tanpa mengekspos kontak pribadi secara publik.
+- **Manajemen oleh Pemilik Laporan**:
+  - Memperbarui status menjadi *Returned / Resolved*.
+  - Mengedit konten laporan secara berkala.
+  - Menghapus laporan dengan dialog konfirmasi.
 
 ### 5. Dashboard Pengguna (User Dashboard)
-- **Kartu Statistik Personal**:
-  - Laporan Barang Hilang Saya
-  - Laporan Barang Temuan Saya
-  - Potensi Kecocokan Ditemukan
-  - Laporan yang Telah Selesai (*Resolved*)
-- **Tab 'Laporan Saya'**:
-  - Filter status internal (`Semua`, `Aktif`, `Selesai`).
-  - Tabel dan kartu interaktif untuk melihat status laporan Anda.
-  - Tombol aksi cepat: Lihat Detail, Ubah Status Selesai, Edit, dan Hapus Laporan.
-- **Tab 'Barang yang Cocok' (Potential Matches)**:
-  - Menampilkan kartu perbandingan berdampingan (*side-by-side*) antara laporan Anda dan laporan orang lain yang dicurigai cocok.
-  - Menampilkan skor kecocokan (*Match Score*) dan alasan deteksi sistem (misal: *"Kategori sama: Elektronik"*, *"Kata kunci sama: MacBook"*, *"Lokasi sama: Perpustakaan"*).
-  - Tombol langsung untuk meninjau detail dan menghubungi pihak terkait.
+- **Ringkasan Metrik Pengguna**:
+  - Total laporan kehilangan aktif
+  - Total laporan penemuan aktif
+  - Rekomendasi kecocokan terdeteksi
+  - Total laporan yang telah berhasil diselesaikan
+- **Tab Laporan Saya**:
+  - Filter status internal (Semua, Aktif, Selesai).
+  - Manajemen penuh: Tinjau Detail, Tandai Selesai, Perbarui Data, Hapus Laporan.
+- **Tab Rekomendasi Kecocokan (Potential Matches)**:
+  - Tampilan perbandingan berdampingan (*side-by-side comparison*) antara barang milik pengguna dan barang pengguna lain yang berpotensi merupakan pasangannya.
+  - Rincian skor kecocokan (*Match Score Percentage*) beserta breakdown analisis sistem (kesamaan kategori, kata kunci, dan lokasi).
+  - Akses langsung untuk menghubungi pihak terkait.
 
-### 6. Profil Pengguna & Log Aktivitas (Profile Page)
-- **Identitas Terverifikasi**: Menampilkan nama lengkap, peran institusi (Mahasiswa / Dosen / Staf), avatar berbasis inisial warna-warni, serta tanggal bergabung.
-- **Pengaturan Profil**: Formulir edit nama, bio, email, dan nomor telepon kontak.
-- **Keamanan Akun**: Formulir pergantian password dengan validasi keamanan kata sandi lama dan baru.
-- **Linimasa Aktivitas (Activity Timeline)**: Riwayat lengkap setiap tindakan pengguna dalam sistem (melaporkan barang, mengirim pesan, menyelesaikan status laporan, login, dll).
+### 6. Profil Pengguna dan Riwayat Aktivitas
+- **Identitas Akun**: Nama lengkap, peran institusi (Mahasiswa / Dosen / Staf), avatar inisial, dan tanggal bergabung.
+- **Pengaturan Profil**: Pembaruan biodata, nomor kontak, dan alamat surel institusi.
+- **Keamanan Akun**: Penggantian kata sandi dengan validasi kata sandi lama dan konfirmasi kata sandi baru.
+- **Linimasa Aktivitas (Audit Log)**: Rekam jejak seluruh interaksi pengguna (pelaporan barang, pengiriman pesan, pembaruan status, autentikasi).
 
-### 7. Autentikasi Pengguna & Akun Demo (Auth View)
-- Formulir Masuk (*Login*) dan Daftar Akun Baru (*Register*) yang bersih dan modern.
-- **Quick Demo Login (1-Klik)**: Tombol instan untuk masuk langsung sebagai:
-  1. **Alex Rivera** (Mahasiswa)
-  2. **Dr. Sarah Jenkins** (Dosen)
-- Pilihan *"Ingat Saya"* (*Remember Me*) dan tautan simulasi reset kata sandi.
+### 7. Autentikasi Pengguna & Akses Cepat Demo
+- Formulir Masuk (*Login*) dan Pendaftaran (*Register*) yang terintegrasi validasi input.
+- **Akses Cepat Akun Demo (1-Click Login)**:
+  - Akun Mahasiswa (Alex Rivera)
+  - Akun Dosen (Dr. Sarah Jenkins)
+- Opsi penyimpanan sesi (*Remember Me*) dan simulasi pemulihan kata sandi.
 
 ---
 
-## 🤖 Algoritma Pencocokan Otomatis (Match Engine)
+## Algoritma Pencocokan Otomatis (Match Engine)
 
-Sistem mengimplementasikan mesin pencocokan deterministik berbasis pembobotan (*weighted heuristic scoring*):
+Sistem menerapkan algoritma deteksi heuristik berbasis pembobotan (*weighted deterministic scoring*) untuk mengevaluasi tingkat kesamaan antar dua laporan:
 
-```
+```text
                        [ Laporan Baru / Target Item ]
-                                     │
-                                     ▼
-                  [ Filter Status Berlawanan ]
-               (Lost ◄───► Found / Status: Active)
-                                     │
-                                     ▼
-        ┌────────────────────────────┼────────────────────────────┐
-        ▼                            ▼                            ▼
+                                     |
+                                     v
+                   [ Filter Status Berlawanan ]
+                (Lost <---> Found / Status: Active)
+                                     |
+                                     v
+        +----------------------------+----------------------------+
+        |                            |                            |
+        v                            v                            v
  [ Skor Kategori ]           [ Skor Kata Kunci ]           [ Skor Lokasi ]
    Bobot: +40 poin             Bobot: +20-40 poin            Bobot: +25 poin
-  (Jika kategori sama)        (Tokenisasi judul &          (Jika nama lokasi
-                               deskripsi cocok)               mengandung kata sama)
-        │                            │                            │
-        └────────────────────────────┼────────────────────────────┘
-                                     ▼
+  (Jika kategori sama)        (Tokenisasi judul &           (Jika lokasi berada
+                               deskripsi cocok)              di gedung/area sama)
+        |                            |                            |
+        +----------------------------+----------------------------+
+                                     |
+                                     v
                           [ Total Skor Kecocokan ]
-                                     │
+                                     |
                        Skor >= Threshold (30 poin)
-                                     │
-                                     ▼
-                   [ Rekomendasi Kecocokan Dibuat ]
+                                     |
+                                     v
+                    [ Rekomendasi Kecocokan Dibuat ]
 ```
 
-- **Kriteria Pembobotan**:
-  - **Kategori Identik**: Menghasilkan +40 poin kecocokan awal.
-  - **Kecocokan Kata Kunci (Keywords Overlap)**: Kata-kata dalam judul ditokenisasi dan dibandingkan (mengabaikan kata hubung). Setiap kata kunci yang cocok menambahkan +20 poin (maksimal 40 poin).
-  - **Kecocokan Lokasi**: Jika lokasi pelaporan berada di gedung atau zona yang sama, sistem menambahkan +25 poin.
-- **Hasil & Alasan**: Setiap kecocokan menyimpan rincian alasan sistem (*reasons breakdown*) agar pengguna memahami mengapa kedua laporan tersebut direkomendasikan.
+### Parameter Penilaian:
+- **Kesesuaian Kategori**: Menghasilkan nilai dasar +40 poin apabila kategori barang identik.
+- **Kesesuaian Kata Kunci (Token Overlap)**: Teks judul dipecah menjadi token kata individual setelah pembersihan kata hubung (*stop words*). Setiap kata kunci yang cocok menambahkan +20 poin (maksimum batas 40 poin).
+- **Kesesuaian Lokasi**: Kesamaan area atau gedung pelaporan menghasilkan +25 poin tambahan.
+- **Ambang Batas Minimum**: Rekomendasi ditampilkan kepada pengguna apabila akumulasi skor mencapai minimal 30 poin.
 
 ---
 
-## 🔄 Alur Kerja Pengguna (User Journey)
+## Alur Kerja Pengguna (User Journey)
 
-### Skenario A: Pengguna Kehilangan Barang
-1. Pengguna membuka menu **Laporkan Barang** dan memilih opsi **Saya Kehilangan Barang**.
-2. Pengguna mengisi nama barang (misal: *"MacBook Air M2 Silver"*), memilih kategori `Elektronik`, lokasi `Perpustakaan Lantai 2`, serta mengunggah foto atau memilih preset foto.
-3. Laporan tersimpan dan langsung tampil di **Katalog Publik** dengan badge merah `Lost`.
-4. Jika seseorang telah/akan melaporkan temuan laptop di lokasi serupa, sistem secara otomatis menghubungkan kedua laporan pada tab **Barang Cocok** di Dashboard.
-5. Pemilik membuka detail temuan, mengirim pesan verifikasi ke penemu, dan menyepakati lokasi serah terima.
-6. Setelah barang kembali, pemilik mengubah status menjadi **Returned** melalui Dashboard.
+### Skenario A: Pelaporan Barang Hilang
+1. Pengguna membuka halaman pelaporan dan memilih opsi **Saya Kehilangan Barang**.
+2. Pengguna melengkapi data nama barang, kategori, lokasi terakhir dilihat, estimasi waktu, serta foto pendukung.
+3. Laporan tercatat dan terbit pada katalog publik dengan penanda status `Lost`.
+4. Jika ditemukan barang temuan yang relevan, sistem menampilkan rekomendasi pada tab **Barang Cocok** di Dashboard.
+5. Pemilik meninjau detail barang temuan, mengajukan pesan verifikasi tanda kepemilikan, dan mengatur serah terima fisik.
+6. Setelah barang berhasil diterima kembali, pemilik memperbarui status laporan menjadi `Returned`.
 
-### Skenario B: Pengguna Menemukan Barang
-1. Pengguna menemukan barang tertinggal (misal: *"Dompet Kulit Cokelat"* di Kantin).
-2. Pengguna membuka menu **Laporkan Barang** dan memilih **Saya Menemukan Barang**.
-3. Pengguna mendeskripsikan ciri umum namun menyimpan detail rahasia (seperti nomor kartu di dalamnya) untuk verifikasi nanti.
-4. Laporan muncul di katalog dengan badge hijau `Found`.
-5. Pemilik asli melihat laporan tersebut, mengirim formulir pesan klaim dengan menyebutkan identitas isi dompet.
-6. Setelah verifikasi cocok, barang diserahkan dan penemu/pemilik menandai laporan sebagai **Returned**.
-
----
-
-## 🎨 Arsitektur & Konsep Desain
-
-Aplikasi mengusung filosofi **SaaS-Grade Institutional Minimalism**:
-- **Tidak Bergantung pada Framework Berat**: Dibangun menggunakan murni **Vanilla JavaScript ES Modules** dan **Modular CSS**, menghasilkan performa sangat cepat dengan bundle size ultra-ringan.
-- **Sistem Desain Berbasis Variabel CSS (Tokens)**:
-  - *Backgrounds*: `#ffffff` (Primary White), `#f8fafc` (Slate 50), `#f1f5f9` (Slate 100).
-  - *Typography*: `#0f172a` (Deep Charcoal Navy) dan `#334155` (Slate 700).
-  - *Accents*: `#2563eb` (Royal Blue Institusional) dengan hover `#1d4ed8`.
-  - *Status*:
-    - **Lost**: `#fef2f2` (bg) / `#991b1b` (teks) / `#fecaca` (border)
-    - **Found**: `#f0fdf4` (bg) / `#166534` (teks) / `#bbf7d0` (border)
-    - **Returned**: `#f8fafc` (bg) / `#475569` (teks) / `#cbd5e1` (border)
-- **Tipografi**: Menggunakan font modern **Plus Jakarta Sans** dari Google Fonts dengan skala hierarki yang tegas dan nyaman dibaca.
-- **Responsif Penuh**: Mendukung optimal tampilan desktop resolusi tinggi, laptop, tablet, hingga layar smartphone dengan navigasi mobile drawer.
+### Skenario B: Pelaporan Barang Temuan
+1. Penemu membuka formulir pelaporan dan memilih opsi **Saya Menemukan Barang**.
+2. Penemu mengisi rincian umum barang dan menyimpan tanda rahasia (misalnya nomor seri atau isi spesifik) untuk kebutuhan validasi.
+3. Laporan terbit pada katalog publik dengan penanda status `Found`.
+4. Pihak yang merasa memiliki barang mengirimkan pesan verifikasi untuk mencocokkan ciri-ciri rahasia tersebut.
+5. Setelah konfirmasi validitas tercapai, barang diserahkan dan status laporan diperbarui menjadi `Returned`.
 
 ---
 
-## 💾 Struktur Data (LocalStorage Schema)
+## Arsitektur dan Konsep Desain
 
-Seluruh status aplikasi tersimpan secara persisten pada `localStorage` browser sehingga data tidak akan hilang saat halaman dimuat ulang (*refresh*).
+Aplikasi mengadopsi standar rancang bangun modern tanpa ketergantungan framework eksternal:
+
+- **Arsitektur Tanpa Framework (Vanilla Stack)**: Dibangun sepenuhnya menggunakan **Vanilla JavaScript ES Modules** dan **Modular CSS**, memastikan waktu inisialisasi instan, efisiensi konsumsi memori, dan portabilitas tinggi.
+- **Sistem Desain Berbasis Variabel CSS (Design Tokens)**:
+  - Latar Belakang: `#ffffff` (Primary), `#f8fafc` (Slate 50), `#f1f5f9` (Slate 100).
+  - Tipografi: `#0f172a` (Primary Text) dan `#334155` (Secondary Text).
+  - Aksen Institusional: `#2563eb` (Brand Blue) dengan hover `#1d4ed8`.
+  - Indikator Status:
+    - `Lost`: Latar `#fef2f2`, Teks `#991b1b`, Border `#fecaca`.
+    - `Found`: Latar `#f0fdf4`, Teks `#166534`, Border `#bbf7d0`.
+    - `Returned`: Latar `#f8fafc`, Teks `#475569`, Border `#cbd5e1`.
+- **Tipografi**: Menggunakan keluarga font institusional modern **Plus Jakarta Sans** dengan hierarki ukuran dan keterbacaan yang terstandarisasi.
+- **Desain Responsif Penuh**: Mendukung tata letak adaptif untuk layar desktop, laptop, tablet, serta perangkat seluler melalui drawer navigasi responsif.
+
+---
+
+## Struktur Data (LocalStorage Schema)
+
+Seluruh status aplikasi dikelola dan disimpan secara persisten pada `localStorage` peramban:
 
 ```javascript
-// Struktur Data Aplikasi (Entity Relationship Diagram Sederhana)
 {
-  // 1. Entitas Pengguna
+  // 1. Data Pengguna
   "laf_users": [
     {
       "id": "usr_001",
@@ -222,12 +211,12 @@ Seluruh status aplikasi tersimpan secara persisten pada `localStorage` browser s
       "phone": "+62 812-3456-7890",
       "role": "Mahasiswa",
       "avatar": "AR",
-      "bio": "Mahasiswa Teknik Informatika semester 6...",
+      "bio": "Mahasiswa Teknik Informatika...",
       "joined": "2024-08-15"
     }
   ],
 
-  // 2. Entitas Laporan Barang
+  // 2. Data Laporan Barang
   "laf_items": [
     {
       "id": "itm_001",
@@ -235,8 +224,8 @@ Seluruh status aplikasi tersimpan secara persisten pada `localStorage` browser s
       "title": "MacBook Air M2 13-inch Silver",
       "category": "Elektronik",
       "status": "lost", // 'lost' | 'found' | 'returned'
-      "description": "Tertinggal di meja kubikel ruang baca utama...",
-      "additionalInfo": "Ada stiker GitHub dan stiker siluet kucing di pojok kanan bawah",
+      "description": "Tertinggal di meja kubikel perpustakaan...",
+      "additionalInfo": "Stiker GitHub di sudut kanan bawah",
       "location": "Perpustakaan Pusat, Lantai 2",
       "date": "2026-09-12",
       "time": "14:30",
@@ -249,7 +238,7 @@ Seluruh status aplikasi tersimpan secara persisten pada `localStorage` browser s
     }
   ],
 
-  // 3. Entitas Pesan / Verifikasi Klaim
+  // 3. Data Pesan & Inkuiri Klaim
   "laf_inquiries": [
     {
       "id": "inq_001",
@@ -257,12 +246,12 @@ Seluruh status aplikasi tersimpan secara persisten pada `localStorage` browser s
       "senderName": "Dr. Sarah Jenkins",
       "senderEmail": "sarah.jenkins@campus.ac.id",
       "senderPhone": "+62 811-9876-5432",
-      "message": "Saya menemukan laptop serupa di meja resepsionis perpus...",
+      "message": "Barang ini telah diamankan di meja resepsionis...",
       "createdAt": "2026-09-13T09:15:00.000Z"
     }
   ],
 
-  // 4. Log Linimasa Aktivitas
+  // 4. Riwayat Aktivitas Sistem
   "laf_activities": [
     {
       "id": "act_001",
@@ -276,51 +265,50 @@ Seluruh status aplikasi tersimpan secara persisten pada `localStorage` browser s
 
 ---
 
-## 📂 Struktur Direktori Proyek
+## Struktur Direktori Proyek
 
-```
+```text
 lost-and-found/
-├── .git/                      # Repositori Git lokal
-├── .gitignore                 # Berkas abaian Git (node_modules, dist, dll)
-├── index.html                 # Pintu masuk utama HTML & konfigurasi font
-├── package.json               # Konfigurasi dependensi Vite & script build
-├── package-lock.json          # Lockfile dependensi npm
-├── README.md                  # Dokumentasi komprehensif proyek
+├── .gitignore                 # Daftar berkas abaian Git
+├── index.html                 # Dokumen entri utama HTML
+├── package.json               # Konfigurasi dependensi dan scripts build
+├── package-lock.json          # Rekam versi dependensi npm
+├── README.md                  # Dokumentasi teknis proyek
 └── src/                       # Kode sumber aplikasi
-    ├── components/            # Komponen UI modular
-    │   ├── Footer.js          # Footer institusional & informasi tautan
-    │   ├── ItemCard.js        # Komponen kartu barang di katalog & beranda
-    │   ├── ItemDetailModal.js # Modal detail barang, verifikasi, dan klaim
-    │   ├── Modal.js           # Komponen dasar wrapper modal dialog
-    │   ├── Navbar.js          # Bilah navigasi responsif & drawer mobile
-    │   └── Toast.js           # Sistem notifikasi toast pop-up
-    ├── data/                  # Layer data & state management
-    │   ├── seedData.js        # Data awal realistis (barang, akun demo)
-    │   └── store.js           # State manager reaktif, CRUD & matching engine
+    ├── components/            # Komponen antarmuka pengguna modular
+    │   ├── Footer.js          # Komponen footer aplikasi
+    │   ├── ItemCard.js        # Komponen kartu item katalog
+    │   ├── ItemDetailModal.js # Modal detail, verifikasi, dan klaim
+    │   ├── Modal.js           # Komponen dasar wrapper dialog
+    │   ├── Navbar.js          # Navigasi utama dan menu mobile
+    │   └── Toast.js           # Notifikasi pop-up sistem
+    ├── data/                  # Layer data dan state management
+    │   ├── seedData.js        # Data awal demonstrasi sistem
+    │   └── store.js           # State store reaktif dan matching engine
     ├── styles/                # Arsitektur CSS modular
-    │   ├── base.css           # Reset CSS, base typography & utility classes
-    │   ├── components.css     # Styling komponen (navbar, card, modal, button)
-    │   ├── index.css          # Pintu masuk impor seluruh stylesheet
-    │   ├── variables.css      # Design tokens (warna, radius, shadow, font)
-    │   └── views.css          # Styling spesifik untuk tiap halaman/view
-    ├── views/                 # Halaman aplikasi (Views)
-    │   ├── AuthView.js        # Halaman login & register (termasuk demo login)
-    │   ├── DashboardView.js   # Dashboard pengguna (laporan saya & match items)
-    │   ├── HomeView.js        # Halaman beranda, hero section, live stats
-    │   ├── ItemsView.js       # Halaman katalog barang, live search & multi-filter
-    │   ├── ProfileView.js     # Halaman profil akun, ganti kata sandi, log aktivitas
-    │   └── ReportView.js      # Halaman formulir pelaporan barang hilang / temuan
-    ├── main.js                # Inisialisasi aplikasi, store, navbar, footer & router
-    └── router.js              # Hash router berbasis Single Page Application (SPA)
+    │   ├── base.css           # Reset dasar dan typography utilities
+    │   ├── components.css     # Styling komponen antarmuka
+    │   ├── index.css          # Entri impor utama stylesheet
+    │   ├── variables.css      # Design tokens (warna, radius, bayangan)
+    │   └── views.css          # Styling halaman spesifik
+    ├── views/                 # Komponen halaman (Views)
+    │   ├── AuthView.js        # Halaman autentikasi login dan register
+    │   ├── DashboardView.js   # Dashboard laporan dan rekomendasi kecocokan
+    │   ├── HomeView.js        # Halaman beranda dan metrik ringkasan
+    │   ├── ItemsView.js       # Halaman direktori pencarian dan filter
+    │   ├── ProfileView.js     # Halaman manajemen akun dan log aktivitas
+    │   └── ReportView.js      # Formulir pelaporan barang baru
+    ├── main.js                # Inisialisasi aplikasi dan dependensi
+    └── router.js              # Hash router Single Page Application (SPA)
 ```
 
 ---
 
-## 🛠️ Panduan Instalasi & Menjalankan Aplikasi
+## Panduan Instalasi dan Menjalankan Aplikasi
 
 ### Prasyarat Sistem
 - **Node.js**: Versi 18.0.0 atau yang lebih baru ([Unduh Node.js](https://nodejs.org/))
-- **npm**: Versi 9.0.0 atau yang lebih baru (terpasang otomatis bersama Node.js)
+- **npm**: Versi 9.0.0 atau yang lebih baru (terpasang bersama Node.js)
 - **Git**: Terpasang di sistem komputer Anda
 
 ### 1. Kloning Repositori
@@ -338,64 +326,60 @@ npm install
 ```bash
 npm run dev
 ```
-Setelah perintah dijalankan, Vite akan mengaktifkan server lokal. Buka peramban (browser) dan akses alamat:
-```
+Setelah server lokal berjalan, buka peramban dan akses alamat:
+```text
 http://localhost:5173/
 ```
 
-### 4. Membangun Berkas Produksi (Production Build)
-Untuk membuat berkas teroptimasi siap hosting / publikasi:
+### 4. Membangun Berkas Distribusi Produksi (Production Build)
+Untuk menghasilkan berkas teroptimasi siap publikasi:
 ```bash
 npm run build
 ```
-Hasil kompilasi akan berada di direktori `dist/`. Anda dapat mengujinya dengan:
+Hasil kompilasi tersimpan pada direktori `dist/`. Anda dapat menguji hasil kompilasi dengan:
 ```bash
 npm run preview
 ```
 
 ---
 
-## 🔑 Kredensial Akun Demo
+## Kredensial Akun Demo
 
-Untuk mempermudah pengujian seluruh fitur tanpa perlu mendaftar dari awal, sistem telah dilengkapi dengan 2 akun bawaan:
+Untuk mempermudah pengujian alur fungsional tanpa registrasi manual, sistem menyediakan dua akun demonstrasi:
 
-| Peran Institusi | Nama Lengkap | Alamat Email | Kata Sandi | Tombol Akses Cepat |
+| Peran Institusi | Nama Lengkap | Alamat Email | Kata Sandi | Akses Cepat |
 | :--- | :--- | :--- | :--- | :--- |
-| **Mahasiswa** | Alex Rivera | `alex.rivera@campus.ac.id` | `password123` | Tombol *"Demo Mahasiswa"* di halaman Login |
-| **Dosen** | Dr. Sarah Jenkins | `sarah.jenkins@campus.ac.id` | `password123` | Tombol *"Demo Dosen"* di halaman Login |
-
-*Catatan: Anda juga dapat mendaftarkan akun baru secara mandiri melalui formulir Register.*
+| **Mahasiswa** | Alex Rivera | `alex.rivera@campus.ac.id` | `password123` | Tombol "Demo Mahasiswa" pada Form Login |
+| **Dosen** | Dr. Sarah Jenkins | `sarah.jenkins@campus.ac.id` | `password123` | Tombol "Demo Dosen" pada Form Login |
 
 ---
 
-## 🧪 Skenario Pengujian Fitur
+## Skenario Pengujian Fitur
 
-Berikut adalah langkah-langkah yang direkomendasikan untuk menguji fungsionalitas utama aplikasi:
-
-1. **Uji Pencarian & Filter (Katalog)**:
-   - Masuk ke tab **Cari Barang**.
-   - Ketik *"MacBook"* pada kolom pencarian dan amati respons instan.
-   - Klik filter `Barang Hilang` lalu pilih kategori `Elektronik`.
-   - Perhatikan chip filter aktif yang muncul di bagian atas dan klik *"Reset Filter"* untuk kembali ke semua data.
+1. **Uji Pencarian dan Penyaringan Data (Katalog)**:
+   - Buka menu **Cari Barang**.
+   - Masukkan kata kunci pencarian (misalnya *"MacBook"*) pada input pencarian.
+   - Aktifkan filter status `Barang Hilang` dan kategori `Elektronik`.
+   - Periksa chips indikator filter aktif di bagian atas dan gunakan tombol *Reset Filter* untuk mengembalikan filter.
 2. **Uji Pelaporan Barang Baru**:
-   - Klik tombol **Laporkan Barang** di navigasi atas.
+   - Klik tombol **Laporkan Barang** pada navigasi utama.
    - Pilih jenis laporan: **Saya Menemukan Barang**.
-   - Masukkan judul barang, pilih salah satu foto dari **Preset Demo Cepat** (misal: *Earphone*), isi lokasi kejadian, lalu simpan.
-   - Sistem akan menampilkan notifikasi Toast sukses dan mengarahkan ke katalog barang.
+   - Masukkan judul barang, pilih salah satu gambar dari **Preset Demo Cepat**, isi data lokasi, lalu simpan laporan.
+   - Sistem akan menampilkan notifikasi konfirmasi sukses dan menambahkan barang ke katalog.
 3. **Uji Algoritma Kecocokan (Matching Engine)**:
-   - Buka **Dashboard** (klik ikon pengguna di navbar lalu pilih *Dashboard*).
-   - Masuk ke tab **Barang Cocok** untuk melihat rekomendasi otomatis barang hilang vs barang temuan.
-   - Klik *"Bandingkan & Hubungi"* untuk membuka modal detail dan mengirim pesan klaim.
-4. **Uji Penyelesaian Laporan (Mark as Returned)**:
-   - Pada Dashboard atau Modal Detail barang milik Anda, klik tombol **Tandai Selesai / Dikembalikan**.
-   - Status barang akan berubah menjadi `Returned` dan statistik penyelesaian pada beranda akan bertambah secara otomatis.
+   - Akses **Dashboard** melalui menu profil di navigasi atas.
+   - Pilih tab **Barang Cocok** untuk melihat hasil analisis otomatis barang hilang vs barang temuan.
+   - Klik tombol aksi untuk membuka detail dan mengirim pesan konfirmasi kepada pihak pelapor.
+4. **Uji Pembaruan Status Penyelesaian (Mark as Returned)**:
+   - Pada Dashboard atau Modal Detail barang milik akun Anda, klik tombol **Tandai Selesai / Dikembalikan**.
+   - Status laporan akan diperbarui menjadi `Returned` dan metrik penyelesaian pada halaman beranda akan terbarui secara otomatis.
 
 ---
 
-## 👥 Lisensi & Hak Cipta
+## Lisensi dan Hak Cipta
 
-Proyek ini dikembangkan dan diselesaikan untuk memenuhi tugas praktikum **Rekayasa Perangkat Lunak Berbasis Web (RPL WEB)**.
+Proyek ini dikembangkan dan diselesaikan untuk memenuhi instrumen tugas **Rekayasa Perangkat Lunak Berbasis Web (RPL WEB)**.
 
 - **Pengembang**: mfthlmzn17-jpg ([GitHub](https://github.com/mfthlmzn17-jpg))
 - **Lisensi**: Bebas digunakan untuk keperluan edukasi, pembelajaran, dan pengembangan institusional non-komersial.
-- **Hak Cipta**: © 2026 Lost And Found Platform. Seluruh hak cipta dilindungi undang-undang.
+- **Hak Cipta**: © 2026 Lost And Found Platform. Seluruh hak cipta dilindungi.
