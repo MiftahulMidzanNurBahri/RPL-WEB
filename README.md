@@ -313,7 +313,7 @@ lost-and-found/
 
 ### 1. Kloning Repositori
 ```bash
-git clone https://github.com/mfthlmzn17-jpg/RPL-WEB.git
+git clone https://github.com/MiftahulMidzanNurBahri/RPL-WEB.git
 cd RPL-WEB
 ```
 
@@ -380,6 +380,6 @@ Untuk mempermudah pengujian alur fungsional tanpa registrasi manual, sistem meny
 
 Proyek ini dikembangkan dan diselesaikan untuk memenuhi instrumen tugas **Rekayasa Perangkat Lunak Berbasis Web (RPL WEB)**.
 
-- **Pengembang**: mfthlmzn17-jpg ([GitHub](https://github.com/mfthlmzn17-jpg))
+- **Pengembang**: MiftahulMidzanNurBahri ([GitHub](https://github.com/MiftahulMidzanNurBahri))
 - **Lisensi**: Bebas digunakan untuk keperluan edukasi, pembelajaran, dan pengembangan institusional non-komersial.
 - **Hak Cipta**: © 2026 Lost And Found Platform. Seluruh hak cipta dilindungi.
