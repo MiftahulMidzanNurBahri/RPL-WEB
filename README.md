@@ -1,4 +1,4 @@
-# Lost And Found — Platform Pelaporan Barang Hilang & Ditemukan Mahasiswa Universitas Pradita (RPL WEB)
+# Lost And Found Platform Pelaporan Barang Hilang & Ditemukan Mahasiswa Universitas Pradita (RPL WEB)
 
 > Lost And Found adalah platform web Single Page Application (SPA) yang dirancang khusus untuk civitas akademika dan mahasiswa Universitas Pradita (Pradita University) guna mengelola pelaporan, pencarian, dan pengembalian barang tertinggal atau hilang di lingkungan kampus secara terpusat, transparan, dan terverifikasi.
 
