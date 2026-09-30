@@ -1,0 +1,101 @@
+.header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  border-bottom: 1px solid var(--color-line);
+  background: rgb(255 255 255 / 96%);
+  backdrop-filter: blur(14px);
+}
+
+.inner {
+  display: flex;
+  width: min(100% - 48px, 1240px);
+  height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
+}
+
+.brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; }
+.brandMark {
+  display: grid;
+  width: 42px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: var(--color-blue);
+}
+.brandText { display: grid; gap: 3px; }
+.brandText strong { color: var(--color-ink); font-size: 15px; font-weight: 800; }
+.brandText small { color: var(--color-muted); font-size: 9px; font-weight: 700; }
+.navigation, .navLinks, .accountLinks { display: flex; align-items: center; }
+.navigation { gap: 32px; }
+.navLinks { gap: 7px; }
+.navLink, .profileLink {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.navLink:hover, .profileLink:hover { background: var(--color-soft); color: var(--color-ink); }
+.navLinkActive { color: var(--color-blue); }
+.accountLinks { gap: 12px; }
+.profileLink { padding-inline: 7px; }
+.loginLink {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 14px;
+  background: var(--color-blue);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+.loginLink:hover { background: var(--color-blue-dark); }
+.menuToggle { display: none; }
+
+@media (max-width: 900px) {
+  .inner { height: 68px; }
+  .menuToggle {
+    display: grid;
+    width: 42px;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid var(--color-line);
+    background: #ffffff;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+  .navigation {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    display: none;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 24px 20px;
+    border-bottom: 1px solid var(--color-line);
+    background: #ffffff;
+    box-shadow: var(--shadow-small);
+  }
+  .navigationOpen { display: flex; flex-direction: column; }
+  .navLinks { align-items: stretch; flex-direction: column; }
+  .navLink { min-height: 46px; }
+  .accountLinks { justify-content: space-between; border-top: 1px solid var(--color-line); padding-top: 12px; }
+}
+
+@media (max-width: 600px) {
+  .inner { width: min(100% - 32px, 1240px); }
+  .navigation { padding-right: 16px; padding-left: 16px; }
+}

@@ -2,10 +2,43 @@
 
 > Lost And Found adalah platform web Single Page Application (SPA) yang dirancang khusus untuk civitas akademika dan mahasiswa Universitas Pradita (Pradita University) guna mengelola pelaporan, pencarian, dan pengembalian barang tertinggal atau hilang di lingkungan kampus secara terpusat, transparan, dan terverifikasi.
 
+> **Catatan implementasi:** Bagian LocalStorage dan struktur direktori di bawah mendokumentasikan prototype awal. Source workspace saat ini menggunakan React/Vite, Express, Prisma, dan SQLite.
+
+## Menjalankan Aplikasi Full-stack Saat Ini
+
+Prasyarat: Node.js 20+ dan npm 9+. Database SQLite berjalan sebagai file lokal; tidak memerlukan server database atau Docker.
+
+```powershell
+npm install
+Copy-Item .env.example .env
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
+```
+
+Masukkan nilai acak dari perintah terakhir sebagai `SESSION_SECRET` di `.env`, lalu siapkan database:
+
+```powershell
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
+
+Jalankan API dan frontend pada dua terminal:
+
+```powershell
+npm run dev:api
+```
+
+```powershell
+npm run dev:web
+```
+
+Frontend tersedia di `http://127.0.0.1:5173/` dan API di `http://localhost:3000/`. Akun demo development: `alex.rivera@student.pradita.ac.id` atau `sarah.jenkins@pradita.ac.id`, dengan kata sandi `password123`. Jangan gunakan kredensial seed untuk production.
+
 ---
 
 ## Daftar Isi
 
+- [Menjalankan Aplikasi Full-stack Saat Ini](#menjalankan-aplikasi-full-stack-saat-ini)
 - [Ruang Lingkup dan Batasan Pengguna](#ruang-lingkup-dan-batasan-pengguna)
 - [Big Picture Permasalahan](#big-picture-permasalahan)
 - [Alasan Pemilihan Judul](#alasan-pemilihan-judul)

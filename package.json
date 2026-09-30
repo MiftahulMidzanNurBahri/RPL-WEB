@@ -1,0 +1,26 @@
+{
+  "name": "lost-and-found-pradita",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "packages/shared"
+  ],
+  "scripts": {
+    "db:generate": "prisma generate --schema apps/api/prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema apps/api/prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema apps/api/prisma/schema.prisma",
+    "db:seed": "prisma db seed --schema apps/api/prisma/schema.prisma",
+    "dev:api": "npm run dev --workspace=@lost-and-found/api",
+    "build:api": "npm run build --workspace=@lost-and-found/api",
+    "start:api": "npm run start --workspace=@lost-and-found/api",
+    "dev:web": "npm run dev --workspace=@lost-and-found/web",
+    "build:web": "npm run build --workspace=@lost-and-found/web",
+    "typecheck:web": "npm run typecheck --workspace=@lost-and-found/web",
+    "typecheck:api": "npm run typecheck --workspace=@lost-and-found/api"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

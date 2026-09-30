@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String        @id @default(cuid())
+  name                String
+  email               String        @unique
+  studentNumber       String?       @unique
+  phone               String?
+  role                String
+  avatarInitials      String
+  bio                 String?
+  passwordHash        String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  lastLoginAt         DateTime?
+  items               Item[]        @relation("ItemReporter")
+  sentInquiries       Inquiry[]     @relation("InquirySender")
+  receivedInquiries   Inquiry[]     @relation("InquiryRecipient")
+  activityLogs        ActivityLog[]
+  sessions            Session[]
+
+  @@index([role, createdAt])
+}
+
+model Item {
+  id              String        @id @default(cuid())
+  reporterId      String
+  title           String
+  category        String
+  reportType      String
+  status          String
+  description     String
+  additionalInfo  String?
+  location        String
+  incidentDate    DateTime
+  incidentTime    String?
+  imagePath       String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  returnedAt      DateTime?
+  deletedAt       DateTime?
+  reporter        User          @relation("ItemReporter", fields: [reporterId], references: [id], onDelete: Restrict)
+  inquiries       Inquiry[]
+  activityLogs    ActivityLog[]
+
+  @@index([status, reportType, createdAt])
+  @@index([category, location])
+  @@index([reporterId, status])
+  @@index([deletedAt, createdAt])
+}
+
+model Inquiry {
+  id            String    @id @default(cuid())
+  itemId        String
+  senderId      String
+  recipientId   String
+  kind          String
+  message       String
+  status        String    @default("pending")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  item          Item      @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  sender        User      @relation("InquirySender", fields: [senderId], references: [id], onDelete: Restrict)
+  recipient     User      @relation("InquiryRecipient", fields: [recipientId], references: [id], onDelete: Restrict)
+
+  @@index([itemId, createdAt])
+  @@index([senderId, createdAt])
+  @@index([recipientId, status, createdAt])
+}
+
+model ActivityLog {
+  id          String    @id @default(cuid())
+  userId      String
+  itemId      String?
+  action      String
+  createdAt   DateTime  @default(now())
+  metadata    Json?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  item        Item?     @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([itemId, createdAt])
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  userId      String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  lastSeenAt  DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash, expiresAt])
+  @@index([userId, expiresAt])
+}

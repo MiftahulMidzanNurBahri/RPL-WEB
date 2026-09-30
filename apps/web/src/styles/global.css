@@ -1,0 +1,71 @@
+:root {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  color: #0f172a;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --color-ink: #0f172a;
+  --color-muted: #526176;
+  --color-line: #dfe6ee;
+  --color-paper: #ffffff;
+  --color-wash: #f8fafc;
+  --color-soft: #f1f5f9;
+  --color-blue: #2563eb;
+  --color-blue-dark: #1d4ed8;
+  --color-green: #166534;
+  --color-green-wash: #f0fdf4;
+  --color-red: #991b1b;
+  --color-red-wash: #fef2f2;
+  --color-orange: #9a3412;
+  --color-orange-wash: #fff7ed;
+  --shadow-small: 0 5px 18px rgb(15 23 42 / 7%);
+}
+
+* { box-sizing: border-box; }
+
+html { min-width: 320px; min-height: 100%; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--color-paper);
+  background-image: linear-gradient(90deg, rgb(37 99 235 / 2%) 1px, transparent 1px);
+  background-size: 84px 100%;
+}
+
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 30%);
+  outline-offset: 3px;
+}
+
+::selection { color: #ffffff; background: var(--color-blue); }
+
+.button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.button:disabled { opacity: .58; cursor: not-allowed; }
+.button--primary { background: var(--color-blue); color: #ffffff; }
+.button--primary:hover:not(:disabled) { background: var(--color-blue-dark); }
+.button--outline { border-color: #cbd5e1; background: #ffffff; color: #24334a; }
+.button--outline:hover:not(:disabled) { border-color: #94a3b8; background: #f8fafc; }
+.button--danger { background: #b91c1c; color: #ffffff; }
+.button--danger:hover:not(:disabled) { background: #991b1b; }
+.button--wide { width: 100%; }
+.route-loading { min-height: 40vh; }
