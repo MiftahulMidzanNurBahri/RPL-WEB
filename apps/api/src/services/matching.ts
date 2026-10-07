@@ -13,6 +13,14 @@ function tokens(item: Pick<MatchableItem, "title" | "description">): Set<string>
   return new Set(words.filter((word) => !stopWords.has(word)));
 }
 
+function normalizeLocation(location: string | null): string {
+  return location?.normalize("NFKC")
+    .toLocaleLowerCase("id-ID")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .replace(/\s+/gu, " ") ?? "";
+}
+
 export function scoreMatch(source: MatchableItem, candidate: MatchableItem): {
   score: number;
   reasons: string[];
@@ -34,7 +42,8 @@ export function scoreMatch(source: MatchableItem, candidate: MatchableItem): {
     reasons.push("Kata kunci barang cocok");
   }
 
-  if (source.location && source.location === candidate.location) {
+  const sourceLocation = normalizeLocation(source.location);
+  if (sourceLocation && sourceLocation === normalizeLocation(candidate.location)) {
     score += 25;
     reasons.push("Lokasi kampus sama");
   }

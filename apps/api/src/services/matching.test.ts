@@ -65,3 +65,63 @@ test("does not award points for unrelated reports", () => {
   assert.equal(result.score, 0);
   assert.deepEqual(result.reasons, []);
 });
+
+test("matches equivalent free-form locations despite case, punctuation, and spacing", () => {
+  const result = scoreMatch(
+    {
+      title: "Dompet hitam",
+      description: "Berisi kartu mahasiswa",
+      category: null,
+      location: "Lab Komputer, Lantai 3 - Ruang 14"
+    },
+    {
+      title: "Kunci sepeda",
+      description: "Gantungan warna hijau",
+      category: null,
+      location: "  lab komputer lantai 3 ruang 14  "
+    }
+  );
+
+  assert.equal(result.score, 25);
+  assert.deepEqual(result.reasons, ["Lokasi kampus sama"]);
+});
+
+test("does not match free-form locations with different room numbers", () => {
+  const result = scoreMatch(
+    {
+      title: "Dompet hitam",
+      description: "Berisi kartu mahasiswa",
+      category: null,
+      location: "Lab Komputer, Lantai 3, Ruang 301"
+    },
+    {
+      title: "Kunci sepeda",
+      description: "Gantungan warna hijau",
+      category: null,
+      location: "Lab Komputer, Lantai 3, Ruang 302"
+    }
+  );
+
+  assert.equal(result.score, 0);
+  assert.deepEqual(result.reasons, []);
+});
+
+test("does not award location points for empty or whitespace-only locations", () => {
+  const result = scoreMatch(
+    {
+      title: "Dompet hitam",
+      description: "Berisi kartu mahasiswa",
+      category: null,
+      location: "   "
+    },
+    {
+      title: "Kunci sepeda",
+      description: "Gantungan warna hijau",
+      category: null,
+      location: ""
+    }
+  );
+
+  assert.equal(result.score, 0);
+  assert.deepEqual(result.reasons, []);
+});
