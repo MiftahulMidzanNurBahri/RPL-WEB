@@ -11,6 +11,7 @@ import { itemsRouter } from "./routes/items.routes.js";
 import { errorHandler, ApiError } from "./lib/errors.js";
 import { projectRoot } from "./lib/paths.js";
 import { verifyRequestOrigin, isAllowedOrigin } from "./middleware/security.js";
+import { cleanupExpiredReturnedItems } from "./services/returned-item-cleanup.js";
 
 const app = express();
 
@@ -46,6 +47,13 @@ app.use("/uploads", express.static(resolve(projectRoot, process.env.UPLOAD_DIR ?
 
 app.get("/api/health", (_request, response) => {
   response.json({ data: { status: "ok" } });
+});
+app.use("/api", (request, _response, next) => {
+  if (request.method !== "GET") {
+    next();
+    return;
+  }
+  void cleanupExpiredReturnedItems().then(() => next(), next);
 });
 app.use("/api/auth", authRouter);
 app.use("/api/items", itemsRouter);

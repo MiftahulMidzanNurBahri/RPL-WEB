@@ -29,7 +29,7 @@ interface InquiryEntry {
   status: "pending" | "replied" | "resolved";
   message: string;
   createdAt: string;
-  item: { id: string; title: string };
+  item: { id: string; title: string } | null;
   sender: { id: string; name: string; avatarInitials: string };
   recipient: { id: string; name: string; avatarInitials: string };
 }
@@ -190,7 +190,8 @@ export function DashboardPage() {
               <div className={styles.inquiryAvatar}>{participant.avatarInitials}</div>
               <div className={styles.inquiryBody}>
                 <div className={styles.inquiryTitle}><strong>{participant.name}</strong><span>{inquiry.kind === "claim" ? "Klaim barang" : "Pertanyaan"}</span></div>
-                <Link to={`/items/${inquiry.item.id}`}>{inquiry.item.title}</Link>
+                {inquiry.item ? <Link to={`/items/${inquiry.item.id}`}>{inquiry.item.title}</Link>
+                  : <span>Laporan telah dihapus setelah masa retensi selesai.</span>}
                 <p>{inquiry.message}</p>
                 <small><Clock3 size={13} /> {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(inquiry.createdAt))}</small>
               </div>

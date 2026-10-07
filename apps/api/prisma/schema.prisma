@@ -63,7 +63,7 @@ model Item {
 
 model Inquiry {
   id            String    @id @default(cuid())
-  itemId        String
+  itemId        String?
   senderId      String
   recipientId   String
   kind          String
@@ -71,7 +71,7 @@ model Inquiry {
   status        String    @default("pending")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  item          Item      @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  item          Item?     @relation(fields: [itemId], references: [id], onDelete: SetNull)
   sender        User      @relation("InquirySender", fields: [senderId], references: [id], onDelete: Restrict)
   recipient     User      @relation("InquiryRecipient", fields: [recipientId], references: [id], onDelete: Restrict)
 
@@ -88,7 +88,7 @@ model ActivityLog {
   createdAt   DateTime  @default(now())
   metadata    Json?
   user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
-  item        Item?     @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  item        Item?     @relation(fields: [itemId], references: [id], onDelete: SetNull)
   @@index([userId, createdAt])
   @@index([itemId, createdAt])
 }
