@@ -25,10 +25,14 @@ const authLimiter = rateLimit({
 const registrationSchema = z.object({
   name: z.string().trim().min(1).max(120),
   email: emailSchema,
-  password: z.string().min(12).max(128),
+  password: z.string().min(8).max(128),
+  confirmPassword: z.string().min(8).max(128),
   studentNumber: z.string().trim().min(1).max(40).optional(),
   phone: z.string().trim().max(32).optional()
-}).strict();
+}).strict().refine((input) => input.password === input.confirmPassword, {
+  message: "Kata sandi dan konfirmasi kata sandi tidak sama.",
+  path: ["confirmPassword"]
+});
 
 const loginSchema = z.object({
   email: emailSchema,
@@ -111,7 +115,7 @@ authRouter.post("/logout", requireAuth, async (request, response) => {
 authRouter.put("/password", requireAuth, async (request, response) => {
   const input = parseInput(z.object({
     currentPassword: z.string().min(1).max(128),
-    newPassword: z.string().min(12).max(128)
+    newPassword: z.string().min(8).max(128)
   }).strict(), request.body);
   const currentUser = authenticatedUser(request);
   const user = await prisma.user.findUnique({ where: { id: currentUser.id } });

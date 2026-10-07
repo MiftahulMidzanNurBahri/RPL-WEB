@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight, GraduationCap, KeyRound, ShieldCheck } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, GraduationCap, KeyRound, ShieldCheck } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ApiClientError } from "../api/client";
 import { useAuth } from "../auth/AuthProvider";
@@ -12,6 +12,9 @@ export function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [studentNumber, setStudentNumber] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -22,11 +25,15 @@ export function AuthPage() {
 
   const authenticate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isRegister && password !== confirmPassword) {
+      setError("Kata sandi dan konfirmasi kata sandi tidak sama.");
+      return;
+    }
     setSubmitting(true);
     setError("");
     try {
       if (isRegister) {
-        await register({ name, email, password, ...(studentNumber ? { studentNumber } : {}) });
+        await register({ name, email, password, confirmPassword, ...(studentNumber ? { studentNumber } : {}) });
         showToast("Akun berhasil dibuat.", "success");
       } else {
         await signIn({ email, password });
@@ -84,10 +91,26 @@ export function AuthPage() {
             <input maxLength={40} value={studentNumber} onChange={(event) => setStudentNumber(event.target.value)} />
           </label>}
           <label className={styles.formField}>Kata sandi
-            <input type="password" autoComplete={isRegister ? "new-password" : "current-password"} required minLength={isRegister ? 12 : 1} maxLength={128}
-              value={password} onChange={(event) => setPassword(event.target.value)} />
-            {isRegister && <small>Minimal 12 karakter.</small>}
+            <span className={styles.passwordInputWrap}>
+              <input type={passwordVisible ? "text" : "password"} autoComplete={isRegister ? "new-password" : "current-password"} required minLength={isRegister ? 8 : 1} maxLength={128}
+                value={password} onChange={(event) => setPassword(event.target.value)} />
+              <button className={styles.passwordToggle} type="button" aria-label={passwordVisible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                aria-pressed={passwordVisible} onClick={() => setPasswordVisible((visible) => !visible)}>
+                {passwordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </span>
+            {isRegister && <small>Minimal 8 karakter.</small>}
           </label>
+          {isRegister && <label className={styles.formField}>Konfirmasi kata sandi
+            <span className={styles.passwordInputWrap}>
+              <input type={confirmPasswordVisible ? "text" : "password"} autoComplete="new-password" required maxLength={128}
+                value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
+              <button className={styles.passwordToggle} type="button" aria-label={confirmPasswordVisible ? "Sembunyikan konfirmasi kata sandi" : "Tampilkan konfirmasi kata sandi"}
+                aria-pressed={confirmPasswordVisible} onClick={() => setConfirmPasswordVisible((visible) => !visible)}>
+                {confirmPasswordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </span>
+          </label>}
           {error && <div className={styles.formError} role="alert">{error}</div>}
           <button className="button button--primary button--wide" disabled={submitting} type="submit">
             {submitting ? "Memproses..." : isRegister ? "Buat akun" : "Masuk"}<ArrowRight size={16} />

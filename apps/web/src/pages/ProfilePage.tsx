@@ -130,11 +130,11 @@ export function ProfilePage() {
             </label>
             <div className={styles.formGrid}>
               <label className={styles.formField}>Kata sandi baru
-                <input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={newPassword}
+                <input type="password" required minLength={8} maxLength={128} autoComplete="new-password" value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)} />
               </label>
               <label className={styles.formField}>Ulangi kata sandi baru
-                <input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={confirmPassword}
+                <input type="password" required minLength={8} maxLength={128} autoComplete="new-password" value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)} />
               </label>
             </div>

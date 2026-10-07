@@ -32,7 +32,9 @@ export function ItemDetailPage() {
   if (loading) return <div className={styles.page}><div className={styles.detailSkeleton} /></div>;
   if (!item) return <div className={styles.page}><div className={styles.emptyState}><h1>Laporan tidak ditemukan</h1><Link to="/items">Kembali ke katalog</Link></div></div>;
 
-  const formatDate = new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(item.incidentDate));
+  const formatDate = item.incidentDate
+    ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(item.incidentDate))
+    : null;
 
   const submitInquiry = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -98,11 +100,13 @@ export function ItemDetailPage() {
         <aside className={styles.detailAside}>
           <div className={styles.eyebrow}>{item.reportType === "lost" ? "LAPORAN KEHILANGAN" : "LAPORAN TEMUAN"}</div>
           <h1>{item.title}</h1>
-          <div className={styles.detailCategory}>{item.category}</div>
+          {item.category && <div className={styles.detailCategory}>{item.category}</div>}
           <div className={styles.metadataList}>
-            <div><MapPin size={17} /><span><small>Lokasi</small>{item.location}</span></div>
-            <div><CalendarDays size={17} /><span><small>Tanggal kejadian</small>{formatDate}</span></div>
+            {item.location && <div><MapPin size={17} /><span><small>Lokasi</small>{item.location}</span></div>}
+            {formatDate && <div><CalendarDays size={17} /><span><small>Tanggal kejadian</small>{formatDate}</span></div>}
             {item.incidentTime && <div><Clock3 size={17} /><span><small>Perkiraan waktu</small>{item.incidentTime}</span></div>}
+            {item.dropOffPoint && <div><MapPin size={17} /><span><small>Titik temu penyerahan</small>{item.dropOffPoint}</span></div>}
+            {item.meetUpTime && <div><Clock3 size={17} /><span><small>Waktu penyerahan</small>{item.meetUpTime}</span></div>}
           </div>
           <div className={styles.verificationNote}><ShieldCheck size={19} /><p>Verifikasi kepemilikan dilakukan langsung dengan mencocokkan ciri khusus. Jangan membagikan informasi sensitif di ruang publik.</p></div>
           {!item.isMine && item.status !== "returned" && (user ? (

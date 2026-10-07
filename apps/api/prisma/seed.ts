@@ -52,7 +52,8 @@ async function main(): Promise<void> {
       additionalInfo: "Memiliki stiker khusus di sudut kanan bawah.",
       location: "Perpustakaan Pradita",
       incidentDate: new Date("2026-09-12T00:00:00.000Z"),
-      incidentTime: "14:30"
+      incidentTime: "14:30",
+      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
     }
   });
 
@@ -70,7 +71,8 @@ async function main(): Promise<void> {
       additionalInfo: "Ada goresan kecil di sisi kiri casing.",
       location: "Perpustakaan Pradita",
       incidentDate: new Date("2026-09-13T00:00:00.000Z"),
-      incidentTime: "09:15"
+      incidentTime: "09:15",
+      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
     }
   });
 

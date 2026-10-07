@@ -23,3 +23,8 @@ export const ReportTypes = ["lost", "found"] as const;
 export const ItemStatuses = ["lost", "found", "returned"] as const;
 export const InquiryKinds = ["inquiry", "claim"] as const;
 export const InquiryStatuses = ["pending", "replied", "resolved"] as const;
+
+export const DropOffPoints = [
+  "Student Lounge Gedung A Lantai 2",
+  "Pos Satpam Gedung A & Gedung B"
+] as const;

@@ -212,6 +212,24 @@
 .authPanelHeading h2 { margin: 5px 0 0; font-size: 19px; }
 .formStack { display: grid; gap: 14px; }
 .formField small { color: #718096; font-size: 9px; font-weight: 400; }
+.passwordInputWrap { position: relative; }
+.passwordInputWrap input { padding-right: 38px; }
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #718096;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.passwordToggle:focus-visible { outline: 2px solid var(--color-blue); outline-offset: 2px; }
 .optional { color: #7b8797; font-size: 9px; font-weight: 400; }
 .formError { padding: 10px 12px; border: 1px solid #fecaca; background: #fef2f2; color: #991b1b; font-size: 11px; line-height: 1.55; }
 .authSwitch { display: flex; justify-content: center; gap: 5px; margin-top: 17px; color: #64748b; font-size: 10px; }
@@ -299,6 +317,8 @@
 .reportRowMain { display: grid; min-width: 0; gap: 4px; }
 .reportRowMain a { overflow: hidden; font-size: 11px; font-weight: 700; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .reportRowMain small { overflow: hidden; color: #728095; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.renewButton { display: inline-flex; width: max-content; max-width: 100%; align-items: center; gap: 5px; margin-top: 2px; padding: 3px 7px; border: 1px solid var(--color-line); background: transparent; color: var(--color-blue); font-size: 9px; font-weight: 700; cursor: pointer; }
+.renewButton:disabled { cursor: wait; opacity: .6; }
 .rowArrow { display: grid; width: 28px; aspect-ratio: 1; place-items: center; color: #718096; }
 .rowArrow:hover { background: #eff6ff; color: var(--color-blue); }
 .listSkeleton { height: 150px; background: linear-gradient(110deg, #f1f5f9 8%, #f8fafc 18%, #f1f5f9 33%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
@@ -541,6 +561,7 @@
 :global([data-theme="dark"]) .formField textarea:focus {
   border-color: var(--color-blue);
 }
+:global([data-theme="dark"]) .passwordToggle { color: var(--color-muted); }
 
 :global([data-theme="dark"]) .authIntro h1 span { color: #60a5fa; }
 :global([data-theme="dark"]) .authTrust {

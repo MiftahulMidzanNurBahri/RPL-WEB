@@ -34,16 +34,20 @@ interface InquiryEntry {
   recipient: { id: string; name: string; avatarInitials: string };
 }
 
-type DashboardTab = "reports" | "matches" | "messages";
+type DashboardTab = "reports" | "archive" | "matches" | "messages";
 
 export function DashboardPage() {
   const [summary, setSummary] = useState<PersonalDashboard | null>(null);
   const [matches, setMatches] = useState<MatchEntry[]>([]);
   const [inquiries, setInquiries] = useState<InquiryEntry[]>([]);
+  const [archivedItems, setArchivedItems] = useState<ApiItem[]>([]);
+  const [archivePage, setArchivePage] = useState(1);
+  const [archiveTotal, setArchiveTotal] = useState(0);
   const [tab, setTab] = useState<DashboardTab>("reports");
   const [filter, setFilter] = useState<"all" | "active" | "done">("all");
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [renewingId, setRenewingId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState("");
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -54,16 +58,33 @@ export function DashboardPage() {
     Promise.all([
       apiRequest<ApiData<PersonalDashboard>>("/api/dashboard/me"),
       apiRequest<ApiList<MatchEntry>>("/api/matches?page=1&pageSize=50"),
-      apiRequest<ApiList<InquiryEntry>>("/api/inquiries?page=1&pageSize=50")
+      apiRequest<ApiList<InquiryEntry>>("/api/inquiries?page=1&pageSize=50"),
+      apiRequest<ApiList<ApiItem>>(`/api/dashboard/me/archived?page=${archivePage}&pageSize=20`)
     ])
-      .then(([dashboard, matchResult, inquiryResult]) => {
+      .then(([dashboard, matchResult, inquiryResult, archiveResult]) => {
         setSummary(dashboard.data);
         setMatches(matchResult.data);
         setInquiries(inquiryResult.data);
+        setArchivedItems(archiveResult.data);
+        setArchiveTotal(archiveResult.pagination.total);
       })
         .catch(() => setLoadError("Dashboard belum dapat dimuat. Coba perbarui atau masuk kembali."))
       .finally(() => setLoading(false));
-      }, [refreshKey]);
+      }, [refreshKey, archivePage]);
+
+  const renewReport = async (itemId: string) => {
+    setRenewingId(itemId);
+    try {
+      await apiRequest(`/api/items/${encodeURIComponent(itemId)}/renew`, { method: "POST" });
+      showToast("Laporan aktif kembali selama 14 hari.", "success");
+      setArchivePage(1);
+      setRefreshKey((key) => key + 1);
+    } catch (requestError) {
+      showToast(requestError instanceof Error ? requestError.message : "Laporan belum dapat diperpanjang.", "error");
+    } finally {
+      setRenewingId(null);
+    }
+  };
 
   const updateInquiry = async (inquiryId: string, status: "replied" | "resolved") => {
     try {
@@ -104,6 +125,9 @@ export function DashboardPage() {
         <button role="tab" aria-selected={tab === "reports"} className={tab === "reports" ? styles.tabActive : ""} onClick={() => setTab("reports")}>
           Laporan saya <span>{summary?.recentItems.length ?? 0}</span>
         </button>
+        <button role="tab" aria-selected={tab === "archive"} className={tab === "archive" ? styles.tabActive : ""} onClick={() => setTab("archive")}>
+          Arsip <span>{archiveTotal}</span>
+        </button>
         <button role="tab" aria-selected={tab === "matches"} className={tab === "matches" ? styles.tabActive : ""} onClick={() => setTab("matches")}>
           Barang cocok <span>{matches.length}</span>
         </button>
@@ -121,14 +145,24 @@ export function DashboardPage() {
           </div>
         </div>
         {loading ? <div className={styles.listSkeleton} /> : reports.length ? <div className={styles.reportList}>
-          {reports.map((item) => <article className={styles.reportRow} key={item.id}>
-            <div className={styles.reportTypeMark}><span className={item.reportType === "lost" ? styles.markLost : styles.markFound} /></div>
-            <div className={styles.reportRowMain}><Link to={`/items/${item.id}`}>{item.title}</Link>
-              <small>{item.category} · {item.location}</small></div>
-            <StatusBadge status={item.status} />
-            <Link className={styles.rowArrow} aria-label={`Lihat ${item.title}`} to={`/items/${item.id}`}><ArrowRight size={16} /></Link>
-          </article>)}
+          {reports.map((item) => <PersonalReportRow key={item.id} item={item} renewing={renewingId === item.id}
+            onRenew={() => void renewReport(item.id)} />)}
         </div> : <div className={styles.emptyState}><p>Belum ada laporan pada filter ini.</p><Link className="button button--primary" to="/report">Buat laporan</Link></div>}
+      </section>}
+
+      {tab === "archive" && <section className={styles.dashboardPanel}>
+        <div className={styles.panelHeading}><div><h2>Arsip laporan</h2><p>Laporan yang masa aktifnya telah berakhir. Data tetap tersimpan dan dapat diaktifkan kembali.</p></div></div>
+        {loading ? <div className={styles.listSkeleton} /> : archivedItems.length ? <>
+          <div className={styles.reportList}>
+            {archivedItems.map((item) => <PersonalReportRow key={item.id} item={item} archived renewing={renewingId === item.id}
+              onRenew={() => void renewReport(item.id)} />)}
+          </div>
+          {archiveTotal > 20 && <div className={styles.filterPills} aria-label="Halaman arsip">
+            <button type="button" disabled={archivePage <= 1} onClick={() => setArchivePage((page) => page - 1)}>Sebelumnya</button>
+            <span>{archivePage} / {Math.ceil(archiveTotal / 20)}</span>
+            <button type="button" disabled={archivePage >= Math.ceil(archiveTotal / 20)} onClick={() => setArchivePage((page) => page + 1)}>Berikutnya</button>
+          </div>}
+        </> : <div className={styles.emptyState}><p>Belum ada laporan yang diarsipkan.</p></div>}
       </section>}
 
       {tab === "matches" && <section className={styles.dashboardPanel}>
@@ -175,6 +209,31 @@ export function DashboardPage() {
       </section>}
     </div>
   );
+}
+
+function PersonalReportRow({ item, archived = false, renewing, onRenew }: {
+  item: ApiItem;
+  archived?: boolean;
+  renewing: boolean;
+  onRenew: () => void;
+}) {
+  const date = archived ? item.archivedAt : item.expiresAt;
+  const dateLabel = date
+    ? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(date))
+    : "belum ditentukan";
+
+  return <article className={styles.reportRow}>
+    <div className={styles.reportTypeMark}><span className={item.reportType === "lost" ? styles.markLost : styles.markFound} /></div>
+    <div className={styles.reportRowMain}><Link to={`/items/${item.id}`}>{item.title}</Link>
+      <small>{[item.category, item.location, item.dropOffPoint ? `Titik temu: ${item.dropOffPoint}` : null]
+        .filter((detail): detail is string => Boolean(detail)).join(" · ")} · {archived ? "Diarsipkan" : "Aktif hingga"} {dateLabel}</small>
+      {item.status !== "returned" && <button className={styles.renewButton} type="button" disabled={renewing} onClick={onRenew}>
+        <RefreshCw size={12} /> {renewing ? "Memperpanjang..." : "Perpanjang laporan"}
+      </button>}
+    </div>
+    <StatusBadge status={item.status} />
+    <Link className={styles.rowArrow} aria-label={`Lihat ${item.title}`} to={`/items/${item.id}`}><ArrowRight size={16} /></Link>
+  </article>;
 }
 
 function DashboardMetric({ label, value, tone, loading }: {

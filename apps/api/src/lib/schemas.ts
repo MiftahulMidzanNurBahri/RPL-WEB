@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ApiError } from "./errors.js";
 import {
-  CampusLocations,
+  DropOffPoints,
   InquiryKinds,
   InquiryStatuses,
   ItemCategories,
@@ -19,21 +19,34 @@ export const profileFields = {
 
 export const itemCreateSchema = z.object({
   title: z.string().trim().min(1).max(160),
-  category: z.enum(ItemCategories),
+  category: z.enum(ItemCategories).nullable().optional(),
   reportType: z.enum(ReportTypes),
   description: z.string().trim().min(1).max(3000),
   additionalInfo: z.string().trim().max(1000).nullable().optional(),
-  location: z.enum(CampusLocations),
-  incidentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  incidentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullable().optional()
-}).strict();
+  location: z.string().trim().min(1).max(250).nullable().optional(),
+  dropOffPoint: z.enum(DropOffPoints).nullable().optional(),
+  incidentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+  incidentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullable().optional(),
+  meetUpTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullable().optional()
+}).strict().superRefine((input, context) => {
+  if (input.reportType !== "lost") return;
+  if (!input.category) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["category"], message: "Kategori wajib dipilih untuk laporan kehilangan." });
+  }
+  if (!input.location) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["location"], message: "Lokasi wajib diisi untuk laporan kehilangan." });
+  }
+  if (!input.incidentDate) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["incidentDate"], message: "Tanggal kejadian wajib diisi untuk laporan kehilangan." });
+  }
+});
 
 export const itemQuerySchema = z.object({
   q: z.string().trim().max(160).optional(),
   reportType: z.enum(ReportTypes).optional(),
   status: z.enum(ItemStatuses).optional(),
   category: z.enum(ItemCategories).optional(),
-  location: z.enum(CampusLocations).optional(),
+  location: z.string().trim().max(250).optional(),
   sort: z.enum(["newest", "oldest"]).default("newest"),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20)

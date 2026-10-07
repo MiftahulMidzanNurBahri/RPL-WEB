@@ -9,6 +9,7 @@ import { profileFields } from "../lib/schemas.js";
 import { parseInput, paginationSchema } from "../lib/validation.js";
 import { inquiryCreateSchema, inquiryUpdateSchema } from "../lib/schemas.js";
 import { scoreMatch } from "../services/matching.js";
+import { activeReportWhere, archiveExpiredReports } from "../services/item-archiving.js";
 
 export const domainRouter = Router();
 
@@ -26,12 +27,15 @@ const participantSelect = { id: true, name: true, avatarInitials: true } as cons
 const itemOwnerSelect = { id: true, name: true, avatarInitials: true } as const;
 
 domainRouter.get("/dashboard/summary", async (_request, response) => {
+  await archiveExpiredReports();
+  const now = new Date();
+  const activeWhere = activeReportWhere(now);
   const [lostActive, foundActive, returned, latestItems] = await Promise.all([
-    prisma.item.count({ where: { status: "lost", deletedAt: null } }),
-    prisma.item.count({ where: { status: "found", deletedAt: null } }),
+    prisma.item.count({ where: { ...activeWhere, status: "lost" } }),
+    prisma.item.count({ where: { ...activeWhere, status: "found" } }),
     prisma.item.count({ where: { status: "returned", deletedAt: null } }),
     prisma.item.findMany({
-      where: { deletedAt: null },
+      where: activeWhere,
       include: { reporter: { select: itemOwnerSelect } },
       orderBy: { createdAt: "desc" },
       take: 8
@@ -48,14 +52,15 @@ domainRouter.get("/dashboard/summary", async (_request, response) => {
 });
 
 async function findMatches(userId: string) {
+  const now = new Date();
+  const activeWhere = activeReportWhere(now);
   const ownItems = await prisma.item.findMany({
-    where: { reporterId: userId, status: { in: ["lost", "found"] }, deletedAt: null }
+    where: { ...activeWhere, reporterId: userId }
   });
   const candidateItems = await prisma.item.findMany({
     where: {
+      ...activeWhere,
       reporterId: { not: userId },
-      status: { in: ["lost", "found"] },
-      deletedAt: null
     },
     include: { reporter: { select: itemOwnerSelect } }
   });
@@ -78,6 +83,7 @@ async function findMatches(userId: string) {
 }
 
 domainRouter.get("/matches", requireAuth, async (request, response) => {
+  await archiveExpiredReports();
   const query = parseInput(paginationSchema.extend({ itemId: z.string().max(100).optional() }).strict(), request.query);
   const userId = authenticatedUser(request).id;
   let matches = await findMatches(userId);
@@ -90,16 +96,44 @@ domainRouter.get("/matches", requireAuth, async (request, response) => {
   });
 });
 
-domainRouter.get("/dashboard/me", requireAuth, async (request, response) => {
+domainRouter.get("/dashboard/me/archived", requireAuth, async (request, response) => {
+  await archiveExpiredReports();
+  const query = parseInput(paginationSchema, request.query);
   const userId = authenticatedUser(request).id;
+  const where = { reporterId: userId, archivedAt: { not: null }, deletedAt: null };
+  const [items, total] = await prisma.$transaction([
+    prisma.item.findMany({
+      where,
+      orderBy: { archivedAt: "desc" },
+      skip: (query.page - 1) * query.pageSize,
+      take: query.pageSize
+    }),
+    prisma.item.count({ where })
+  ]);
+  response.json({
+    data: items.map((item) => itemDto(item, { isMine: true, includePrivate: true })),
+    pagination: paginationDto(query.page, query.pageSize, total)
+  });
+});
+
+domainRouter.get("/dashboard/me", requireAuth, async (request, response) => {
+  await archiveExpiredReports();
+  const userId = authenticatedUser(request).id;
+  const now = new Date();
+  const activeWhere = activeReportWhere(now);
   const [lost, found, returned, matches, recentItems] = await Promise.all([
-    prisma.item.count({ where: { reporterId: userId, status: "lost", deletedAt: null } }),
-    prisma.item.count({ where: { reporterId: userId, status: "found", deletedAt: null } }),
+    prisma.item.count({ where: { ...activeWhere, reporterId: userId, status: "lost" } }),
+    prisma.item.count({ where: { ...activeWhere, reporterId: userId, status: "found" } }),
     prisma.item.count({ where: { reporterId: userId, status: "returned", deletedAt: null } }),
     findMatches(userId),
     prisma.item.findMany({
-      where: { reporterId: userId, deletedAt: null },
-      orderBy: { createdAt: "desc" },
+      where: {
+        reporterId: userId,
+        deletedAt: null,
+        archivedAt: null,
+        OR: [{ status: "returned" }, { ...activeWhere }]
+      },
+      orderBy: { updatedAt: "desc" },
       take: 10
     })
   ]);
@@ -115,12 +149,13 @@ domainRouter.get("/dashboard/me", requireAuth, async (request, response) => {
 });
 
 domainRouter.post("/items/:id/inquiries", requireAuth, inquiryLimiter, async (request, response) => {
+  await archiveExpiredReports();
   const input = parseInput(inquiryCreateSchema, request.body);
   const user = authenticatedUser(request);
   const itemId = request.params.id;
   if (typeof itemId !== "string") throw new ApiError(400, "INVALID_ITEM_ID", "ID laporan tidak valid.");
   const item = await prisma.item.findFirst({
-    where: { id: itemId, deletedAt: null },
+    where: { id: itemId, ...activeReportWhere() },
     select: { id: true, reporterId: true, title: true, status: true }
   });
   if (!item) throw new ApiError(404, "ITEM_NOT_FOUND", "Laporan barang tidak ditemukan.");

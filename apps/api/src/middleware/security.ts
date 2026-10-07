@@ -3,6 +3,7 @@ import { ApiError } from "../lib/errors.js";
 import { CSRF_COOKIE, verifyCsrfToken } from "../lib/sessions.js";
 
 const MutatingMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+const SessionBootstrapPaths = new Set(["/api/auth/login", "/api/auth/register"]);
 
 export function isAllowedOrigin(origin: string | undefined): boolean {
   if (!origin) return false;
@@ -28,7 +29,8 @@ export function verifyRequestOrigin(request: Request, _response: Response, next:
   }
 
   const sessionCookieName = process.env.NODE_ENV === "production" ? "__Host-laf_session" : "laf_session";
-  if (request.cookies?.[sessionCookieName]) {
+  const isSessionBootstrap = request.method === "POST" && SessionBootstrapPaths.has(request.path);
+  if (request.cookies?.[sessionCookieName] && !isSessionBootstrap) {
     const signedCsrf = request.cookies[CSRF_COOKIE];
     const headerCsrf = request.get("x-csrf-token");
     if (!verifyCsrfToken(signedCsrf, headerCsrf)) {

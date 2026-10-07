@@ -108,15 +108,19 @@ export interface ApiUser {
 export interface ApiItem {
   id: string;
   title: string;
-  category: string;
+  category: string | null;
   reportType: "lost" | "found";
   status: "lost" | "found" | "returned";
   description: string;
   additionalInfo?: string | null;
-  location: string;
-  incidentDate: string;
+  location: string | null;
+  dropOffPoint?: string | null;
+  incidentDate: string | null;
   incidentTime: string | null;
+  meetUpTime: string | null;
   imageUrl: string | null;
+  expiresAt: string | null;
+  archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
   returnedAt: string | null;

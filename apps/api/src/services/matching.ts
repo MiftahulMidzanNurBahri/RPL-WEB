@@ -20,7 +20,7 @@ export function scoreMatch(source: MatchableItem, candidate: MatchableItem): {
   let score = 0;
   const reasons: string[] = [];
 
-  if (source.category === candidate.category) {
+  if (source.category && source.category === candidate.category) {
     score += 40;
     reasons.push("Kategori barang sama");
   }
@@ -34,7 +34,7 @@ export function scoreMatch(source: MatchableItem, candidate: MatchableItem): {
     reasons.push("Kata kunci barang cocok");
   }
 
-  if (source.location === candidate.location) {
+  if (source.location && source.location === candidate.location) {
     score += 25;
     reasons.push("Lokasi kampus sama");
   }

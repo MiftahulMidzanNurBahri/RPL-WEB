@@ -1,7 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { ArrowRight, ImagePlus, ShieldCheck, Upload, X } from "lucide-react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { CampusLocations, ItemCategories } from "../../../../packages/shared/src/index.js";
+import { DropOffPoints, ItemCategories } from "../../../../packages/shared/src/index.js";
 import { apiRequest, type ApiData, type ApiItem } from "../api/client";
 import { DemoPresets, presetImageUrl, presetToFile } from "./demoPresets";
 import { useToast } from "../components/Toast";
@@ -14,20 +14,25 @@ interface ReportFormData {
   description: string;
   additionalInfo: string;
   location: string;
+  dropOffPoint: string;
   incidentDate: string;
   incidentTime: string;
+  meetUpTime: string;
 }
 
 const currentDate = new Date().toISOString().slice(0, 10);
+const operatingHoursError = "Waktu penyerahan/pertemuan harus antara 09:00 dan 19:00 WIB. Pilih waktu pada rentang tersebut atau jadwalkan penyerahan pada hari operasional kampus.";
 const blankForm: ReportFormData = {
   title: "",
   category: ItemCategories[0],
   reportType: "lost",
   description: "",
   additionalInfo: "",
-  location: CampusLocations[0],
+  location: "",
+  dropOffPoint: "",
   incidentDate: currentDate,
-  incidentTime: ""
+  incidentTime: "",
+  meetUpTime: ""
 };
 
 export function ReportPage() {
@@ -57,13 +62,15 @@ export function ReportPage() {
         }
         setForm({
           title: data.title,
-          category: data.category,
+          category: data.category ?? ItemCategories[0],
           reportType: data.reportType,
           description: data.description,
           additionalInfo: data.additionalInfo ?? "",
-          location: data.location,
-          incidentDate: data.incidentDate.slice(0, 10),
-          incidentTime: data.incidentTime ?? ""
+          location: data.location ?? "",
+          dropOffPoint: data.dropOffPoint ?? "",
+          incidentDate: data.incidentDate?.slice(0, 10) ?? currentDate,
+          incidentTime: data.incidentTime ?? "",
+          meetUpTime: data.meetUpTime ?? ""
         });
         setExistingImage(data.imageUrl);
       })
@@ -84,6 +91,8 @@ export function ReportPage() {
   const update = <Key extends keyof ReportFormData>(key: Key, value: ReportFormData[Key]) => {
     setForm((current) => ({ ...current, [key]: value }));
   };
+  const isOutsideOperatingHours = form.reportType === "found" && Boolean(form.meetUpTime) &&
+    (form.meetUpTime < "09:00" || form.meetUpTime > "19:00");
 
   const selectImage = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] ?? null;
@@ -112,10 +121,17 @@ export function ReportPage() {
 
   const submitReport = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isOutsideOperatingHours) return;
+    if (form.reportType === "lost" && !form.location.trim()) {
+      setError("Lokasi kehilangan wajib diisi.");
+      return;
+    }
     setSubmitting(true);
     setError("");
     const body = new FormData();
     Object.entries(form).forEach(([key, value]) => {
+      if (form.reportType === "found" && ["category", "location", "incidentDate", "incidentTime", "additionalInfo"].includes(key)) return;
+      if (form.reportType === "lost" && ["dropOffPoint", "meetUpTime"].includes(key)) return;
       if (value) body.append(key, value);
     });
     if (file) body.append("image", file);
@@ -167,44 +183,66 @@ export function ReportPage() {
                 <input required maxLength={160} value={form.title} onChange={(event) => update("title", event.target.value)}
                   placeholder="Contoh: Laptop ASUS warna perak" />
               </label>
-              <label className={styles.formField}>Kategori
-                <select value={form.category} onChange={(event) => update("category", event.target.value)}>
-                  {ItemCategories.map((category) => <option key={category} value={category}>{category}</option>)}
-                </select>
-              </label>
-              <label className={styles.formField}>Lokasi kampus
-                <select value={form.location} onChange={(event) => update("location", event.target.value)}>
-                  {CampusLocations.map((location) => <option key={location} value={location}>{location}</option>)}
-                </select>
-              </label>
-              <label className={styles.formField}>Tanggal kejadian
-                <input type="date" required max={currentDate} value={form.incidentDate}
-                  onChange={(event) => update("incidentDate", event.target.value)} />
-              </label>
-              <label className={styles.formField}>Perkiraan waktu <span className={styles.optional}>(opsional)</span>
-                <input type="time" value={form.incidentTime} onChange={(event) => update("incidentTime", event.target.value)} />
-              </label>
+              {form.reportType === "lost" && <>
+                <label className={styles.formField}>Kategori
+                  <select value={form.category} onChange={(event) => update("category", event.target.value)}>
+                    {ItemCategories.map((category) => <option key={category} value={category}>{category}</option>)}
+                  </select>
+                </label>
+                <label className={styles.formField}>Lokasi kehilangan
+                  <input type="text" required maxLength={250} value={form.location}
+                    onChange={(event) => update("location", event.target.value)}
+                    placeholder="Contoh: Di dekat meja nomor 14, Lab Komputer Lt. 3 Gedung A" />
+                </label>
+                <label className={styles.formField}>Tanggal kejadian
+                  <input type="date" required max={currentDate} value={form.incidentDate}
+                    onChange={(event) => update("incidentDate", event.target.value)} />
+                </label>
+                <label className={styles.formField}>Perkiraan waktu <span className={styles.optional}>(opsional)</span>
+                  <input type="time" value={form.incidentTime} onChange={(event) => update("incidentTime", event.target.value)} />
+                </label>
+              </>}
               <label className={`${styles.formField} ${styles.fieldFull}`}>Deskripsi umum
                 <textarea required maxLength={3000} rows={4} value={form.description}
                   onChange={(event) => update("description", event.target.value)}
                   placeholder="Warna, ukuran, merek, atau detail umum lain." />
               </label>
-              <label className={`${styles.formField} ${styles.fieldFull}`}>
-                <span>Ciri verifikasi pribadi <span className={styles.optional}>(opsional, hanya terlihat oleh Anda)</span></span>
-                <textarea maxLength={1000} rows={3} value={form.additionalInfo}
-                  onChange={(event) => update("additionalInfo", event.target.value)}
-                  placeholder="Simpan detail yang dapat membuktikan kepemilikan. Jangan masukkan ke deskripsi umum." />
-              </label>
+              {form.reportType === "lost" && (
+                <label className={`${styles.formField} ${styles.fieldFull}`}>
+                  <span>Ciri verifikasi pribadi <span className={styles.optional}>(opsional, hanya terlihat oleh Anda)</span></span>
+                  <textarea maxLength={1000} rows={3} value={form.additionalInfo}
+                    onChange={(event) => update("additionalInfo", event.target.value)}
+                    placeholder="Simpan detail yang dapat membuktikan kepemilikan. Jangan masukkan ke deskripsi umum." />
+                </label>
+              )}
+              {form.reportType === "found" && (
+                <>
+                  <label className={`${styles.formField} ${styles.fieldFull}`}>
+                    Titik temu / penyerahan barang <span className={styles.optional}>(opsional)</span>
+                    <select value={form.dropOffPoint} onChange={(event) => update("dropOffPoint", event.target.value)}>
+                      <option value="">— Pilih titik temu —</option>
+                      {DropOffPoints.map((point) => <option key={point} value={point}>{point}</option>)}
+                    </select>
+                  </label>
+                  <label className={styles.formField}>Waktu penyerahan <span className={styles.optional}>(opsional)</span>
+                    <input type="time" min="09:00" max="19:00" value={form.meetUpTime} aria-invalid={isOutsideOperatingHours}
+                      aria-describedby={isOutsideOperatingHours ? "meet-up-time-error" : undefined}
+                      onChange={(event) => update("meetUpTime", event.target.value)} />
+                    {isOutsideOperatingHours && <span id="meet-up-time-error" className={styles.formError} role="alert">{operatingHoursError}</span>}
+                  </label>
+                </>
+              )}
             </div>
           </section>
 
           <section className={styles.formSection}>
-            <div className={styles.formSectionHeading}><span>03</span><div><h2>Foto barang</h2><p>Foto membantu orang lain mengenali barang.</p></div></div>
+            <div className={styles.formSectionHeading}><span>03</span><div><h2>Foto barang{form.reportType === "found" && <span className={styles.optional}> (wajib untuk barang temuan)</span>}</h2><p>Foto membantu orang lain mengenali barang.</p></div></div>
             <label className={styles.uploadBox}>
               {preview || existingImage ? <img src={preview ?? existingImage ?? ""} alt="Pratinjau barang" /> : <ImagePlus size={27} />}
               <span><strong>{file ? file.name : "Pilih foto dari perangkat"}</strong><small>JPEG, PNG, atau WebP · Maks. 5 MB</small></span>
               <Upload size={18} />
-              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={selectImage} />
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={selectImage}
+                  required={form.reportType === "found" && !existingImage && !file} />
             </label>
             <div className={styles.presetSection}>
               <div className={styles.presetHeading}><strong>Preset demo cepat</strong><span>Isi contoh untuk pengujian</span></div>

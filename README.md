@@ -34,11 +34,41 @@ npm run dev:web
 
 Frontend tersedia di `http://127.0.0.1:5173/` dan API di `http://localhost:3000/`. Akun demo development: `alex.rivera@student.pradita.ac.id` atau `sarah.jenkins@pradita.ac.id`, dengan kata sandi `password123`. Jangan gunakan kredensial seed untuk production.
 
+## Menjalankan Backend
+
+Jalankan perintah berikut dari folder utama proyek. Backend menggunakan SQLite, sehingga tidak memerlukan server database terpisah.
+
+1. Pasang dependensi dan siapkan file environment jika belum ada:
+
+  ```powershell
+  npm install
+  Copy-Item .env.example .env
+  ```
+
+  Jika file `.env` sudah ada, jangan jalankan `Copy-Item` agar konfigurasi lokal tidak tertimpa. Ganti nilai `SESSION_SECRET` di `.env` dengan string acak minimal 32 karakter. `API_PORT` dapat diubah bila port `3000` sedang digunakan.
+
+2. Siapkan Prisma dan database. Jalankan seed saat pertama kali menyiapkan data demo:
+
+  ```powershell
+  npm run db:generate
+  npm run db:migrate
+  npm run db:seed
+  ```
+
+3. Nyalakan backend:
+
+  ```powershell
+  npm run dev:api
+  ```
+
+  Backend berjalan di `http://localhost:3000/` secara default. Biarkan terminal ini tetap berjalan. Untuk menggunakan aplikasi web, buka terminal lain dan jalankan `npm run dev:web`; frontend tersedia di `http://127.0.0.1:5173/`.
+
 ---
 
 ## Daftar Isi
 
 - [Menjalankan Aplikasi Full-stack Saat Ini](#menjalankan-aplikasi-full-stack-saat-ini)
+- [Menjalankan Backend](#menjalankan-backend)
 - [Ruang Lingkup dan Batasan Pengguna](#ruang-lingkup-dan-batasan-pengguna)
 - [Big Picture Permasalahan](#big-picture-permasalahan)
 - [Alasan Pemilihan Judul](#alasan-pemilihan-judul)

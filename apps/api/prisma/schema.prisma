@@ -33,15 +33,19 @@ model Item {
   id              String        @id @default(cuid())
   reporterId      String
   title           String
-  category        String
+  category        String?
   reportType      String
   status          String
   description     String
   additionalInfo  String?
-  location        String
-  incidentDate    DateTime
+  location        String?
+  dropOffPoint    String?
+  incidentDate    DateTime?
   incidentTime    String?
+  meetUpTime      String?
   imagePath       String?
+  expiresAt       DateTime?
+  archivedAt      DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   returnedAt      DateTime?
@@ -54,6 +58,7 @@ model Item {
   @@index([category, location])
   @@index([reporterId, status])
   @@index([deletedAt, createdAt])
+  @@index([archivedAt, expiresAt])
 }
 
 model Inquiry {
@@ -84,7 +89,6 @@ model ActivityLog {
   metadata    Json?
   user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
   item        Item?     @relation(fields: [itemId], references: [id], onDelete: Restrict)
-
   @@index([userId, createdAt])
   @@index([itemId, createdAt])
 }

@@ -8,6 +8,7 @@ interface Credentials {
 
 interface Registration extends Credentials {
   name: string;
+  confirmPassword: string;
   studentNumber?: string;
 }
 

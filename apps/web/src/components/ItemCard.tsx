@@ -7,10 +7,10 @@ import styles from "../styles/ItemCard.module.css";
 export interface ItemCardData {
   id: string;
   title: string;
-  category: string;
+  category: string | null;
   status: ItemStatus;
-  location: string;
-  incidentDate: string;
+  location: string | null;
+  incidentDate: string | null;
   imageUrl?: string | null;
   reporter?: { name: string; avatarInitials: string };
 }
@@ -45,11 +45,11 @@ export function ItemCard({ item }: ItemCardProps) {
           <StatusBadge className={styles.status} status={item.status} />
         </div>
         <div className={styles.content}>
-          <div className={styles.category}>{item.category}</div>
+          {item.category && <div className={styles.category}>{item.category}</div>}
           <h3>{item.title}</h3>
-          <div className={styles.location}><MapPin size={15} /><span>{item.location}</span></div>
+          {item.location && <div className={styles.location}><MapPin size={15} /><span>{item.location}</span></div>}
           <div className={styles.cardFooter}>
-            <time dateTime={item.incidentDate}>{formatDate(item.incidentDate)}</time>
+            {item.incidentDate && <time dateTime={item.incidentDate}>{formatDate(item.incidentDate)}</time>}
             <span className={styles.openIcon} aria-hidden="true"><MoveUpRight size={16} /></span>
           </div>
         </div>
