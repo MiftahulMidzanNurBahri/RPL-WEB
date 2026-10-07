@@ -10,14 +10,23 @@ import { domainRouter } from "./routes/domain.routes.js";
 import { itemsRouter } from "./routes/items.routes.js";
 import { errorHandler, ApiError } from "./lib/errors.js";
 import { projectRoot } from "./lib/paths.js";
-import { verifyRequestOrigin } from "./middleware/security.js";
+import { verifyRequestOrigin, isAllowedOrigin } from "./middleware/security.js";
 
-const webOrigin = process.env.WEB_ORIGIN ?? "http://localhost:5173";
 const app = express();
 
 app.disable("x-powered-by");
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-app.use(cors({ origin: webOrigin, credentials: true, maxAge: 600 }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  maxAge: 600
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use(verifyRequestOrigin);

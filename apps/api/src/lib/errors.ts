@@ -69,7 +69,7 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
     return;
   }
 
-  console.error("Unhandled API error", error instanceof Error ? error.name : "UnknownError");
+  console.error("Unhandled API error:", error);
   response.status(500).json({
     error: { code: "INTERNAL_ERROR", message: "Terjadi kesalahan pada server.", fields: {} }
   });

@@ -40,24 +40,48 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
     if (token) headers.set("x-csrf-token", token);
   }
 
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
-    headers,
-    credentials: "include"
-  });
-
-  if (response.status === 204) return undefined as T;
-  const payload = await response.json() as T | ApiErrorBody;
-  if (!response.ok) {
-    const error = payload as ApiErrorBody;
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      ...init,
+      headers,
+      credentials: "include"
+    });
+  } catch {
     throw new ApiClientError(
-      error.error?.message ?? "Terjadi kesalahan saat menghubungi server.",
-      response.status,
-      error.error?.code ?? "REQUEST_FAILED",
-      error.error?.fields ?? {}
+      "Layanan autentikasi belum dapat dihubungi. Pastikan server backend sedang aktif.",
+      0,
+      "NETWORK_UNAVAILABLE"
     );
   }
-  return payload as T;
+
+  if (response.status === 204) return undefined as T;
+
+  const rawText = await response.text();
+  let payload: unknown;
+  if (rawText.trim().length > 0) {
+    try {
+      payload = JSON.parse(rawText);
+    } catch {
+      payload = undefined;
+    }
+  }
+
+  if (!response.ok) {
+    const error = payload as ApiErrorBody | undefined;
+    const defaultMsg =
+      response.status >= 500
+        ? "Layanan server backend belum siap atau mengalami gangguan."
+        : `Terjadi kesalahan saat menghubungi server (${response.status}).`;
+    throw new ApiClientError(
+      error?.error?.message ?? defaultMsg,
+      response.status,
+      error?.error?.code ?? "REQUEST_FAILED",
+      error?.error?.fields ?? {}
+    );
+  }
+
+  return (payload ?? ({} as T)) as T;
 }
 
 export interface ApiList<T> {

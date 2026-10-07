@@ -4,14 +4,25 @@ import { CSRF_COOKIE, verifyCsrfToken } from "../lib/sessions.js";
 
 const MutatingMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+export function isAllowedOrigin(origin: string | undefined): boolean {
+  if (!origin) return false;
+  const normalized = origin.replace(/\/$/, "");
+  const configured = (process.env.WEB_ORIGIN ?? "http://localhost:5173").replace(/\/$/, "");
+  if (normalized === configured) return true;
+  if (process.env.NODE_ENV !== "production") {
+    return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalized);
+  }
+  return false;
+}
+
 export function verifyRequestOrigin(request: Request, _response: Response, next: NextFunction): void {
   if (!MutatingMethods.has(request.method)) {
     next();
     return;
   }
 
-  const allowedOrigin = process.env.WEB_ORIGIN ?? "http://localhost:5173";
-  if (request.get("origin") !== allowedOrigin) {
+  const origin = request.get("origin");
+  if (!origin || !isAllowedOrigin(origin)) {
     next(new ApiError(403, "INVALID_ORIGIN", "Permintaan berasal dari origin yang tidak diizinkan."));
     return;
   }
