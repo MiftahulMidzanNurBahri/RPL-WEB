@@ -8,7 +8,7 @@
     "build": "tsc --outDir dist",
     "start": "node ../../dist/apps/api/src/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/services/matching.test.ts",
+    "test": "tsx --test src/services/matching.test.ts src/services/returned-item-cleanup.test.ts",
     "db:generate": "prisma generate --schema prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
     "db:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
