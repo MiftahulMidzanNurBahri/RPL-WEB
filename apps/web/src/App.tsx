@@ -11,6 +11,7 @@ import { ItemDetailPage } from "./pages/ItemDetailPage";
 import { ItemsPage } from "./pages/ItemsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { ReportPage } from "./pages/ReportPage";
+import { ThemeProvider } from "./theme/ThemeContext";
 import styles from "./styles/App.module.css";
 
 function AppShell() {
@@ -41,9 +42,11 @@ function AppShell() {
 export function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <ToastProvider>
-        <AuthProvider><AppShell /></AuthProvider>
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider><AppShell /></AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

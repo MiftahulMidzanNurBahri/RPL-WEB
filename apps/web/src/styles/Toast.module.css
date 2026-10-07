@@ -16,7 +16,7 @@
   gap: 10px;
   padding: 9px 10px 9px 14px;
   border: 1px solid var(--color-line);
-  background: #ffffff;
+  background: var(--color-paper);
   box-shadow: var(--shadow-small);
   color: var(--color-ink);
   font-size: 12px;
@@ -25,7 +25,7 @@
   pointer-events: auto;
 }
 .toast > svg { color: var(--color-blue); }
-.toast button { display: grid; width: 28px; aspect-ratio: 1; place-items: center; border: 0; background: transparent; color: #64748b; cursor: pointer; }
+.toast button { display: grid; width: 28px; aspect-ratio: 1; place-items: center; border: 0; background: transparent; color: var(--color-muted); cursor: pointer; }
 .toast button:hover { background: var(--color-soft); color: var(--color-ink); }
 .success > svg { color: #15803d; }
 .error > svg { color: #b91c1c; }
@@ -35,3 +35,9 @@
 @media (max-width: 480px) {
   .region { right: 12px; bottom: 12px; width: calc(100vw - 24px); }
 }
+
+:global([data-theme="dark"]) .toast {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+}
+:global([data-theme="dark"]) .success > svg { color: #4ade80; }
+:global([data-theme="dark"]) .error > svg { color: #f87171; }

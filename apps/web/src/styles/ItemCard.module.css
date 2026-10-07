@@ -2,12 +2,12 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--color-line);
-  background: #ffffff;
+  background: var(--color-paper);
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 .card:hover { transform: translateY(-2px); border-color: #b6c8e4; box-shadow: var(--shadow-small); }
 .link { display: block; color: inherit; text-decoration: none; }
-.imageFrame { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #f1f5f9; }
+.imageFrame { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--color-soft); }
 .image { width: 100%; height: 100%; object-fit: cover; transition: transform 220ms ease; }
 .card:hover .image { transform: scale(1.025); }
 .imageFallback {
@@ -15,7 +15,7 @@
   width: 100%;
   height: 100%;
   place-items: center;
-  background-color: #f1f5f9;
+  background-color: var(--color-soft);
   background-image: linear-gradient(135deg, rgb(255 255 255 / 65%) 25%, transparent 25%, transparent 50%, rgb(255 255 255 / 65%) 50%, rgb(255 255 255 / 65%) 75%, transparent 75%);
   background-size: 28px 28px;
   color: #94a3b8;
@@ -27,5 +27,17 @@
 .location { display: flex; min-width: 0; align-items: flex-start; gap: 6px; color: var(--color-muted); font-size: 11px; line-height: 1.5; }
 .location svg { flex: 0 0 auto; margin-top: 1px; color: #db7256; }
 .location span { overflow: hidden; text-overflow: ellipsis; }
-.cardFooter { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 11px; border-top: 1px solid #edf1f5; color: #64748b; font-size: 10px; }
+.cardFooter { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 10px; }
 .openIcon { display: grid; width: 28px; aspect-ratio: 1; place-items: center; background: #eff6ff; color: var(--color-blue); }
+
+:global([data-theme="dark"]) .card:hover {
+  border-color: #3b82f6;
+}
+:global([data-theme="dark"]) .imageFallback {
+  background-image: linear-gradient(135deg, rgb(255 255 255 / 6%) 25%, transparent 25%, transparent 50%, rgb(255 255 255 / 6%) 50%, rgb(255 255 255 / 6%) 75%, transparent 75%);
+  color: var(--color-muted);
+}
+:global([data-theme="dark"]) .openIcon {
+  background: #172554;
+  color: var(--color-blue);
+}

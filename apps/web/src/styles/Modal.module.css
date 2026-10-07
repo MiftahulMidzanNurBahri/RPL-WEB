@@ -5,7 +5,7 @@
   padding: 0;
   overflow: auto;
   border: 1px solid var(--color-line);
-  background: #ffffff;
+  background: var(--color-paper);
   color: var(--color-ink);
   box-shadow: 0 24px 80px rgb(15 23 42 / 24%);
 }
@@ -13,11 +13,18 @@
 .panel { padding: 22px; }
 .header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 15px; border-bottom: 1px solid var(--color-line); }
 .header h2 { margin: 0; font-size: 18px; line-height: 1.4; }
-.closeButton { display: grid; width: 34px; aspect-ratio: 1; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-line); background: #ffffff; color: var(--color-muted); cursor: pointer; }
+.closeButton { display: grid; width: 34px; aspect-ratio: 1; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-line); background: var(--color-paper); color: var(--color-muted); cursor: pointer; }
 .closeButton:hover { background: var(--color-soft); color: var(--color-ink); }
 .body { padding-top: 18px; }
 
 @media (max-width: 480px) {
   .panel { padding: 17px; }
   .header h2 { font-size: 16px; }
+}
+
+:global([data-theme="dark"]) .dialog {
+  box-shadow: 0 24px 80px rgb(0 0 0 / 60%);
+}
+:global([data-theme="dark"]) .dialog::backdrop {
+  background: rgb(0 0 0 / 65%);
 }

@@ -20,10 +20,14 @@
 .campus { display: flex; align-items: center; gap: 9px; color: var(--color-muted); font-size: 11px; }
 .campus > svg { flex: 0 0 auto; color: #dc6b4f; }
 .campus a { display: inline-flex; align-items: center; gap: 3px; color: var(--color-blue); text-decoration: none; }
-.copyright { grid-column: 1 / -1; padding-top: 15px; border-top: 1px solid var(--color-line); color: #64748b; font-size: 10px; }
+.copyright { grid-column: 1 / -1; padding-top: 15px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 10px; }
 
 @media (max-width: 760px) {
   .inner { width: min(100% - 32px, 1240px); grid-template-columns: 1fr; }
   .campus { flex-wrap: wrap; }
   .copyright { grid-column: auto; }
+}
+
+:global([data-theme="dark"]) .footer {
+  background: linear-gradient(105deg, #0b1120, #0f172a 54%, #0b1120);
 }

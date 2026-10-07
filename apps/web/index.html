@@ -12,6 +12,21 @@
       rel="stylesheet"
     />
     <title>Lost And Found | Universitas Pradita</title>
+    <script>
+      (function() {
+        try {
+          const stored = localStorage.getItem('laf_theme');
+          const theme = (stored === 'light' || stored === 'dark')
+            ? stored
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'dark') {
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#0b1120');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

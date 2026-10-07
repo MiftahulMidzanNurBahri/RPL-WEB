@@ -62,6 +62,30 @@
   transition: background-color 150ms ease;
 }
 .loginLink:hover { background: var(--color-blue-dark); }
+.themeToggle,
+.logoutButton {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.themeToggle:hover,
+.logoutButton:hover {
+  background: var(--color-soft);
+  color: var(--color-ink);
+  border-color: #94a3b8;
+}
+.themeToggle:focus-visible,
+.logoutButton:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 30%);
+  outline-offset: 2px;
+}
 .menuToggle { display: none; }
 
 @media (max-width: 900px) {
@@ -98,4 +122,33 @@
 @media (max-width: 600px) {
   .inner { width: min(100% - 32px, 1240px); }
   .navigation { padding-right: 16px; padding-left: 16px; }
+}
+
+:global([data-theme="dark"]) .header {
+  background: rgb(11 17 32 / 92%);
+  border-bottom-color: var(--color-line);
+}
+:global([data-theme="dark"]) .brandMark {
+  border-color: #1e3a5f;
+  background: #172554;
+  color: #60a5fa;
+}
+:global([data-theme="dark"]) .navLink,
+:global([data-theme="dark"]) .profileLink {
+  color: var(--color-muted);
+}
+:global([data-theme="dark"]) .navLink:hover,
+:global([data-theme="dark"]) .profileLink:hover {
+  background: var(--color-soft);
+  color: var(--color-ink);
+}
+:global([data-theme="dark"]) .menuToggle {
+  background: var(--color-paper);
+  border-color: var(--color-line);
+  color: var(--color-ink);
+}
+:global([data-theme="dark"]) .navigation {
+  background: var(--color-paper);
+  border-bottom-color: var(--color-line);
+  box-shadow: 0 10px 25px rgb(0 0 0 / 45%);
 }

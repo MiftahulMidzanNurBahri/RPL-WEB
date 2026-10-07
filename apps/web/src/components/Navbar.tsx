@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { ArrowRight, CircleUserRound, LayoutDashboard, LogOut, Menu, PackageSearch, Plus, X } from "lucide-react";
+import { ArrowRight, CircleUserRound, LayoutDashboard, LogOut, Menu, Moon, PackageSearch, Plus, Sun, X } from "lucide-react";
 import { useAuth } from "../auth/AuthProvider";
 import { useToast } from "./Toast";
+import { useTheme } from "../theme/ThemeContext";
 import styles from "../styles/Navbar.module.css";
 
 const links = [
@@ -15,6 +16,7 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { showToast } = useToast();
+  const { theme, toggleTheme } = useTheme();
 
   const logout = async () => {
     try {
@@ -62,6 +64,15 @@ export function Navbar() {
             ))}
           </div>
           <div className={styles.accountLinks}>
+            <button
+              className={styles.themeToggle}
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
+              title={theme === "dark" ? "Mode terang" : "Mode gelap"}
+            >
+              {theme === "dark" ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
+            </button>
             {user ? <>
               <NavLink className={styles.profileLink} to="/profile" onClick={() => setMenuOpen(false)}>
                 <span className={styles.avatar}>{user.avatarInitials}</span>

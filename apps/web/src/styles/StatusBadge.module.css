@@ -16,3 +16,7 @@
 .lost { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
 .found { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
 .returned { border-color: #cbd5e1; background: #f8fafc; color: #475569; }
+
+:global([data-theme="dark"]) .lost { border-color: #7f1d1d; background: rgb(127 29 29 / 24%); color: #fca5a5; }
+:global([data-theme="dark"]) .found { border-color: #14532d; background: rgb(20 83 45 / 24%); color: #86efac; }
+:global([data-theme="dark"]) .returned { border-color: #334155; background: rgb(51 65 85 / 24%); color: #94a3b8; }
