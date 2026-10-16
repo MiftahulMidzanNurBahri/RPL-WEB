@@ -29,7 +29,17 @@ export const itemCreateSchema = z.object({
   incidentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullable().optional(),
   meetUpTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullable().optional()
 }).strict().superRefine((input, context) => {
-  if (input.reportType !== "lost") return;
+  if (input.reportType !== "lost") {
+    if (input.meetUpTime && (input.meetUpTime < "09:00" || input.meetUpTime > "19:00")) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["meetUpTime"],
+        message: "Waktu penyerahan/pertemuan harus antara 09:00 dan 19:00 WIB. Pilih waktu pada rentang tersebut atau jadwalkan penyerahan pada hari operasional kampus."
+      });
+    }
+    return;
+  }
+
   if (!input.category) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["category"], message: "Kategori wajib dipilih untuk laporan kehilangan." });
   }
