@@ -397,37 +397,43 @@ Seluruh status data tersimpan persisten pada penyimpanan lokal browser (`localSt
 
 ```text
 lost-and-found/
+├── .env.example               # Template variabel environment
+├── .env                       # Konfigurasi environment lokal (SQLite, Session, Port)
 ├── .gitignore                 # Daftar berkas abaian Git
-├── index.html                 # Dokumen entri utama HTML & font Pradita UI
-├── package.json               # Konfigurasi dependensi dan scripts build
+├── package.json               # Konfigurasi workspace monorepo & script utama
 ├── package-lock.json          # Rekam versi dependensi npm
 ├── README.md                  # Dokumentasi teknis proyek Universitas Pradita
-└── src/                       # Kode sumber aplikasi
-    ├── components/            # Komponen antarmuka pengguna modular
-    │   ├── Footer.js          # Footer institusional Universitas Pradita
-    │   ├── ItemCard.js        # Komponen kartu item katalog barang
-    │   ├── ItemDetailModal.js # Modal detail, verifikasi klaim, dan kontak
-    │   ├── Modal.js           # Komponen dasar wrapper dialog modal
-    │   ├── Navbar.js          # Navigasi utama dan menu mobile drawer
-    │   └── Toast.js           # Notifikasi pop-up feedback sistem
-    ├── data/                  # Layer data dan state management
-    │   ├── seedData.js        # Data awal demonstrasi di kampus Pradita
-    │   └── store.js           # State store reaktif dan matching engine
-    ├── styles/                # Arsitektur CSS modular institusional
-    │   ├── base.css           # Reset dasar dan typography utilities
-    │   ├── components.css     # Styling komponen antarmuka
-    │   ├── index.css          # Entri impor utama stylesheet
-    │   ├── variables.css      # Design tokens (warna, radius, bayangan)
-    │   └── views.css          # Styling spesifik tampilan per view
-    ├── views/                 # Komponen halaman (Views)
-    │   ├── AuthView.js        # Halaman autentikasi akun mahasiswa & dosen
-    │   ├── DashboardView.js   # Dashboard laporan personal & barang cocok
-    │   ├── HomeView.js        # Halaman beranda dan metrik ringkasan kampus
-    │   ├── ItemsView.js       # Halaman direktori pencarian dan multi-filter
-    │   ├── ProfileView.js     # Halaman profil mahasiswa dan log aktivitas
-    │   └── ReportView.js      # Formulir pelaporan barang hilang / temuan
-    ├── main.js                # Inisialisasi aplikasi dan router
-    └── router.js              # Hash router Single Page Application (SPA)
+├── data/                      # Direktori basis data SQLite lokal
+│   └── lost-and-found.db      # Berkas database SQLite
+├── apps/
+│   ├── api/                   # Backend REST API (Node.js, Express, Prisma ORM, SQLite)
+│   │   ├── prisma/            # Skema Prisma & seed script
+│   │   │   ├── schema.prisma  # Skema database relasional (User, Item, Inquiry, Activity)
+│   │   │   └── seed.ts        # Data awal demonstrasi kampus Pradita
+│   │   ├── src/               # Kode sumber server API
+│   │   │   ├── config/        # Validasi env & konfigurasi keamanan
+│   │   │   ├── middleware/    # Auth, session, error handling, rate limiting
+│   │   │   ├── routes/        # Router endpoint (/api/auth, /api/items, dll.)
+│   │   │   ├── services/      # Business logic & match engine
+│   │   │   ├── app.ts         # Inisialisasi Express app
+│   │   │   └── server.ts      # HTTP server entry point (:3000)
+│   │   └── package.json
+│   └── web/                   # Frontend SPA (React 19, Vite, TypeScript)
+│       ├── index.html         # Dokumen entri HTML & Google Fonts
+│       ├── src/               # Kode sumber frontend
+│       │   ├── api/           # HTTP client & integrasi API
+│       │   ├── auth/          # Context autentikasi & session state
+│       │   ├── components/    # Komponen antarmuka modular (Navbar, ItemCard, Modal, dll.)
+│       │   ├── pages/         # Halaman view (Home, Items, Dashboard, Report, dll.)
+│       │   ├── styles/        # CSS modern modular & design tokens
+│       │   ├── App.tsx        # Routing & root application
+│       │   └── main.tsx       # Entry point React Vite
+│       ├── vite.config.ts     # Konfigurasi Vite & proxy API (:3000)
+│       └── package.json
+└── packages/
+    └── shared/                # Skema dan tipe data bersama (TypeScript / Zod)
+        ├── src/
+        └── package.json
 ```
 
 ---
@@ -435,38 +441,93 @@ lost-and-found/
 ## Panduan Instalasi dan Menjalankan Aplikasi
 
 ### Prasyarat Sistem
-- **Node.js**: Versi 18.0.0 atau yang lebih baru ([Unduh Node.js](https://nodejs.org/))
-- **npm**: Versi 9.0.0 atau yang lebih baru (terpasang bersama Node.js)
-- **Git**: Terpasang di sistem komputer Anda
+- **Node.js**: Versi 20.0.0 atau yang lebih baru ([Unduh Node.js](https://nodejs.org/))
+- **npm**: Versi 9.0.0 atau yang lebih baru (terpasang otomatis bersama Node.js)
+- **Git**: Terpasang di sistem operasi Anda
 
-### 1. Kloning Repositori
+> [!NOTE]
+> Proyek ini menggunakan **SQLite** yang berjalan sebagai berkas lokal di folder `data/lost-and-found.db`. Anda **tidak memerlukan** instalasi PostgreSQL/MySQL terpisah atau Docker untuk menjalankannya.
+
+---
+
+### Langkah 1: Kloning Repositori
 ```bash
 git clone https://github.com/MiftahulMidzanNurBahri/RPL-WEB.git
 cd RPL-WEB
 ```
 
-### 2. Memasang Dependensi
+---
+
+### Langkah 2: Memasang Seluruh Dependensi
+Jalankan perintah ini di root folder proyek untuk menginstal dependensi seluruh workspace (`apps/api`, `apps/web`, dan `packages/shared`):
 ```bash
 npm install
 ```
 
-### 3. Menjalankan Server Pengembangan (Dev Mode)
-```bash
-npm run dev
+---
+
+### Langkah 3: Konfigurasi Environment File (`.env`)
+Salin berkas `.env.example` menjadi `.env`:
+```powershell
+Copy-Item .env.example .env
 ```
-Setelah server lokal aktif, buka peramban dan akses alamat:
-```text
-http://localhost:5173/
+*(Bagi pengguna Linux/macOS: `cp .env.example .env`)*
+
+Buat string rahasia acak minimal 32 karakter untuk session secret:
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
+```
+Buka berkas `.env` dan ganti nilai `SESSION_SECRET` dengan string acak yang dihasilkan di atas.
+
+---
+
+### Langkah 4: Menyiapkan Basis Data (Prisma & SQLite)
+Jalankan rangkaian migrasi dan pengisian data awal (seed) kampus:
+```bash
+# 1. Menghasilkan Prisma Client
+npm run db:generate
+
+# 2. Menjalankan migrasi skema ke SQLite
+npm run db:migrate
+
+# 3. Mengisi data awal demo (akun demo, laporan barang awal kampus)
+npm run db:seed
 ```
 
-### 4. Membangun Berkas Distribusi Produksi (Production Build)
-Untuk menghasilkan berkas teroptimasi siap publikasi di server kampus:
+---
+
+### Langkah 5: Menjalankan Aplikasi (Front-end & Back-end)
+
+Aplikasi membutuhkan dua proses yang berjalan bersamaan:
+
+#### Terminal 1 — Jalankan Back-end (API Server):
 ```bash
-npm run build
+npm run dev:api
 ```
-Hasil kompilasi tersimpan pada direktori `dist/`. Anda dapat menguji hasil kompilasi dengan:
+Server API akan aktif di: **`http://localhost:3000/`**
+
+#### Terminal 2 — Jalankan Front-end (Web Application):
+Buka tab atau jendela terminal baru di folder yang sama, lalu jalankan:
 ```bash
-npm run preview
+npm run dev:web
+```
+Aplikasi web akan aktif di: **`http://127.0.0.1:5173/`**
+
+Buka peramban (browser) Anda dan akses alamat **`http://127.0.0.1:5173/`**. Semua panggilan API dari frontend secara otomatis di-proxy ke backend port 3000 oleh Vite.
+
+---
+
+### Langkah 6: Membangun Berkas Produksi (Production Build & Typecheck)
+Untuk memastikan tidak ada kesalahan tipe data TypeScript dan menghasilkan bundle produksi:
+
+```bash
+# Uji tipe data (Typecheck)
+npm run typecheck:api
+npm run typecheck:web
+
+# Build bundle produksi
+npm run build:api
+npm run build:web
 ```
 
 ---
