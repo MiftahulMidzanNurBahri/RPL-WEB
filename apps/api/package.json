@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc --outDir dist",
-    "start": "node ../../dist/apps/api/src/server.js",
+    "build": "tsc --noEmit false --outDir dist",
+    "start": "node dist/apps/api/src/server.js",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"src/**/*.test.ts\"",
     "db:generate": "prisma generate --schema prisma/schema.prisma",
