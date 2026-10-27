@@ -1,3 +1,5 @@
+import { isSessionInvalid, sessionEvents } from "../auth/session-state";
+
 export interface ApiErrorBody {
   error: {
     code: string;
@@ -18,7 +20,8 @@ export class ApiClientError extends Error {
 }
 
 const apiBaseUrl = import.meta.env.VITE_API_URL ?? "";
-const csrfCookieName = import.meta.env.PROD ? "__Host-laf_csrf" : "laf_csrf";
+const csrfCookieName = import.meta.env.VITE_CSRF_COOKIE_NAME;
+if (!csrfCookieName) throw new Error("VITE_CSRF_COOKIE_NAME is missing. Restart Vite or rebuild with the cookie configuration.");
 
 function csrfToken(): string | undefined {
   const cookiePrefix = `${csrfCookieName}=`;
@@ -29,6 +32,21 @@ function csrfToken(): string | undefined {
 }
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const generation = sessionEvents.current();
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  const release = sessionEvents.trackRequest(generation, abort);
+  init.signal?.addEventListener("abort", abort, { once: true });
+  if (init.signal?.aborted) abort();
+  try {
+    return await performRequest<T>(path, { ...init, signal: controller.signal }, generation);
+  } finally {
+    release();
+    init.signal?.removeEventListener("abort", abort);
+  }
+}
+
+async function performRequest<T>(path: string, init: RequestInit, generation: number): Promise<T> {
   const headers = new Headers(init.headers);
   const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
   if (init.body !== undefined && !isFormData && !headers.has("content-type")) {
@@ -45,9 +63,11 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
     response = await fetch(`${apiBaseUrl}${path}`, {
       ...init,
       headers,
+      ...(/^\/api\/(auth(?:\/|$)|profile(?:\?|$))/.test(path) ? { cache: "no-store" as const } : {}),
       credentials: "include"
     });
   } catch {
+    if (init.signal?.aborted) throw new ApiClientError("Permintaan dibatalkan.", 0, "REQUEST_ABORTED");
     throw new ApiClientError(
       "Layanan autentikasi belum dapat dihubungi. Pastikan server backend sedang aktif.",
       0,
@@ -57,7 +77,12 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   if (response.status === 204) return undefined as T;
 
-  const rawText = await response.text();
+  let rawText: string;
+  try {
+    rawText = await response.text();
+  } catch {
+    throw new ApiClientError("Respons layanan belum dapat diterima.", 0, init.signal?.aborted ? "REQUEST_ABORTED" : "NETWORK_UNAVAILABLE");
+  }
   let payload: unknown;
   if (rawText.trim().length > 0) {
     try {
@@ -73,12 +98,14 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
       response.status >= 500
         ? "Layanan server backend belum siap atau mengalami gangguan."
         : `Terjadi kesalahan saat menghubungi server (${response.status}).`;
-    throw new ApiClientError(
+    const failure = new ApiClientError(
       error?.error?.message ?? defaultMsg,
       response.status,
       error?.error?.code ?? "REQUEST_FAILED",
       error?.error?.fields ?? {}
     );
+    if (isSessionInvalid(failure)) sessionEvents.invalidate(generation);
+    throw failure;
   }
 
   return (payload ?? ({} as T)) as T;
@@ -126,9 +153,4 @@ export interface ApiItem {
   returnedAt: string | null;
   isMine?: boolean;
   reporter?: { id: string; name: string; avatarInitials: string };
-}
-
-export function hasSessionHint(): boolean {
-  return document.cookie.split(";").map((part) => part.trim())
-    .some((part) => part.startsWith(`${csrfCookieName}=`));
 }

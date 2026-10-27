@@ -16,6 +16,11 @@ import { cleanupExpiredReturnedItems } from "./services/returned-item-cleanup.js
 const app = express();
 
 app.disable("x-powered-by");
+// Set this before parsers, security checks and rate limiters can return early.
+app.use(["/api/auth", "/api/profile"], (_request, response, next) => {
+  response.setHeader("Cache-Control", "no-store");
+  next();
+});
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(cors({
   origin: (origin, callback) => {

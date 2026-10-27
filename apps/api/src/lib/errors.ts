@@ -1,7 +1,8 @@
-  import type { ErrorRequestHandler } from "express";
+import type { ErrorRequestHandler } from "express";
 import { Prisma } from "@prisma/client";
 import multer from "multer";
 import { ZodError } from "zod";
+import { clearSessionCookies } from "./sessions.js";
 
 export class ApiError extends Error {
   constructor(
@@ -28,6 +29,12 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
   }
 
   if (error instanceof ApiError) {
+    const expiredSession = error.status === 401
+      && (error.code === "AUTH_REQUIRED" || error.code === "SESSION_EXPIRED");
+    if (expiredSession || (error.status === 403 && (error.code === "CSRF_INVALID" || error.code === "INVALID_ORIGIN"))) {
+      response.setHeader("Cache-Control", "no-store");
+    }
+    if (expiredSession) clearSessionCookies(response);
     response.status(error.status).json({
       error: { code: error.code, message: error.message, fields: error.fields ?? {} }
     });

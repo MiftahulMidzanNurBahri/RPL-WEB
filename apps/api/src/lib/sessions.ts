@@ -2,9 +2,14 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypt
 import type { CookieOptions, Response } from "express";
 import type { User } from "@prisma/client";
 import { prisma } from "./prisma.js";
+import { resolveCsrfCookieName } from "../../../../packages/shared/src/cookie-config.js";
 
 export const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-laf_session" : "laf_session";
-export const CSRF_COOKIE = process.env.NODE_ENV === "production" ? "__Host-laf_csrf" : "laf_csrf";
+export const CSRF_COOKIE = resolveCsrfCookieName({
+  csrfName: process.env.CSRF_COOKIE_NAME,
+  publicName: process.env.VITE_CSRF_COOKIE_NAME,
+  productionBackend: process.env.NODE_ENV === "production"
+});
 const SessionDurationMs = 7 * 24 * 60 * 60 * 1000;
 
 function sessionSecret(): string {

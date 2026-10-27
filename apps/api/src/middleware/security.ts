@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { ApiError } from "../lib/errors.js";
-import { CSRF_COOKIE, verifyCsrfToken } from "../lib/sessions.js";
+import { CSRF_COOKIE, SESSION_COOKIE, verifyCsrfToken } from "../lib/sessions.js";
 
 const MutatingMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const SessionBootstrapPaths = new Set(["/api/auth/login", "/api/auth/register"]);
@@ -28,9 +28,8 @@ export function verifyRequestOrigin(request: Request, _response: Response, next:
     return;
   }
 
-  const sessionCookieName = process.env.NODE_ENV === "production" ? "__Host-laf_session" : "laf_session";
   const isSessionBootstrap = request.method === "POST" && SessionBootstrapPaths.has(request.path);
-  if (request.cookies?.[sessionCookieName] && !isSessionBootstrap) {
+  if (request.cookies?.[SESSION_COOKIE] && !isSessionBootstrap) {
     const signedCsrf = request.cookies[CSRF_COOKIE];
     const headerCsrf = request.get("x-csrf-token");
     if (!verifyCsrfToken(signedCsrf, headerCsrf)) {

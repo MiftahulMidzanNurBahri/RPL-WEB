@@ -13,7 +13,7 @@ interface ActivityEntry {
 }
 
 export function ProfilePage() {
-  const { refreshUser } = useAuth();
+  const { refreshUser, changePassword: updatePassword } = useAuth();
   const { showToast } = useToast();
   const [profile, setProfile] = useState<ApiUser | null>(null);
   const [activities, setActivities] = useState<ActivityEntry[]>([]);
@@ -68,9 +68,7 @@ export function ProfilePage() {
     }
     setSaving(true);
     try {
-      await apiRequest("/api/auth/password", {
-        method: "PUT", body: JSON.stringify({ currentPassword, newPassword })
-      });
+      await updatePassword({ currentPassword, newPassword });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");

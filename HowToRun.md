@@ -120,7 +120,7 @@ Repositori telah dilengkapi suite pengujian otomatis mencakup unit test, validas
 ```bash
 npm test --workspace=@lost-and-found/api
 ```
-*Output mencakup 16 test cases terotomasi yang mencakup:*
+*Jumlah test mengikuti source terkini; cakupannya antara lain:*
 - Validasi metadata laporan barang hilang (*lost*).
 - Validasi jam operasional penyerahan barang temuan (*found*).
 - Penolakan tanggal insiden masa depan dan tanggal kalender tidak valid.
@@ -144,3 +144,31 @@ npm run typecheck:web
 npm run build:api
 npm run build:web
 ```
+
+## 6. Kontrak Cookie dan Pemulihan Sesi Lokal
+
+Konfigurasi utama nama cookie CSRF adalah `CSRF_COOKIE_NAME` di environment proses atau `.env` root. Jika tidak diberikan pada backend development, default-nya `laf_csrf`. Nilai kosong, karakter tidak valid, konflik dengan nama cookie sesi, atau override frontend yang berbeda akan ditolak.
+
+Vite menggunakan loader environment root yang sama, lalu meneruskan hanya nama cookie sebagai `VITE_CSRF_COOKIE_NAME`. Variabel tersebut tidak perlu diisi terpisah; jika diberikan, nilainya harus sama. Nama tidak ditentukan oleh `import.meta.env.PROD`: frontend hasil build untuk pengujian lokal tetap memakai kontrak lokal. Vite mengekspos konfigurasi publik secara eksplisit; jangan memasukkan secret ke variabel frontend. `VITE_API_URL` opsional tetap tersedia; untuk alur lokal gunakan URL relatif melalui proxy `/api`.
+
+Setelah mengubah konfigurasi cookie, restart API dan Vite; rebuild bundle frontend yang sudah dikompilasi. Jangan memakai override nama cookie khusus mode Vite sebagai sumber terpisah dari konfigurasi backend. Gunakan hostname frontend yang konsisten selama satu sesi browser.
+
+Saat aplikasi dimuat ulang, `/api/auth/me` memverifikasi sesi tanpa bergantung pada keberadaan cookie CSRF. Login/register baru selesai setelah verifikasi ini berhasil. Gangguan jaringan atau timeout verifikasi (10 detik) menampilkan status belum dapat diverifikasi dan tombol **Coba lagi**, bukan logout otomatis. Halaman terlindungi ditahan sampai sesi terkonfirmasi. Mutasi tidak diulang otomatis ketika CSRF gagal.
+
+Respons `/api/auth/*`, `/api/profile`, dan error sesi/CSRF/Origin terkait menggunakan `Cache-Control: no-store`. Cookie sesi tetap HttpOnly; token tidak disimpan di localStorage.
+
+### Pengujian database terisolasi
+
+Integration test menulis data. Jangan menjalankan suite terhadap database development. Siapkan salinan disposable database berskema terkini di `node_modules/.cache/cookie-session-<unik>/api-test.db`, lalu tetapkan **keduanya**, `DATABASE_URL` dan `TEST_DATABASE_URL`, ke URL `file:` absolut salinan tersebut pada proses test. Gunakan `SESSION_SECRET` acak sementara untuk proses test. Jangan melakukan migrasi atau purge database utama. Test baru menolak target di luar lokasi disposable tersebut. Jalankan perintah dari root repository:
+
+```text
+node_modules/.bin/tsx --test apps/api/src/lib/auth-contract.test.ts
+node_modules/.bin/tsx --test apps/api/src/routes/auth-session.test.ts
+npm test --workspace=@lost-and-found/api
+```
+
+Pada Windows gunakan executable `.cmd`. Bersihkan hanya direktori disposable buatan pengujian setelah seluruh proses yang memakainya berhenti.
+
+### Batasan deployment
+
+Production belum dikonfigurasi. Backend production memerlukan `CSRF_COOKIE_NAME` eksplisit yang mempertahankan persyaratan prefix `__Host-`; tidak tersedia default production baru. Tentukan nama, URL frontend/API, origin/proxy, terminasi HTTPS, dan kebutuhan lintas hostname sebelum deployment. Build Vite lokal tidak menetapkan keputusan tersebut. Session cookie production tetap Secure, host-only, dan Path=/; mekanisme HMAC CSRF dan keterbatasan pengikatannya pada sesi tidak diubah oleh pekerjaan ini.
