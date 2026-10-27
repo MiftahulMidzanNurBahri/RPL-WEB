@@ -69,7 +69,7 @@ async function findMatches(userId: string) {
     .filter((candidate) => candidate.reportType !== ownItem.reportType)
     .map((candidate) => {
       const result = scoreMatch(ownItem, candidate);
-      if (result.score < 30) return null;
+      if (!result.hasIdentityEvidence || result.score < 30) return null;
       return {
         ownItem: itemDto(ownItem, { isMine: true, includePrivate: true }),
         candidate: itemDto(candidate),

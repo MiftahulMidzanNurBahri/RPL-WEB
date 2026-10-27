@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { randomUUID } from "node:crypto";
 import type { Server } from "node:http";
+import type { Prisma } from "@prisma/client";
 import { app } from "../app.js";
+import { prisma } from "../lib/prisma.js";
 
 function extractCookiesAndCsrf(setCookieHeaders: string[]): { cookieHeader: string; csrfToken: string } {
   const cookies: string[] = [];
@@ -228,6 +231,174 @@ test("E2E API Flow: Authentication, Catalog, Items, Inquiries, and Return Lifecy
   } finally {
     await new Promise<void>((resolve, reject) => {
       server.close((err) => (err ? reject(err) : resolve()));
+    });
+  }
+});
+
+test("matching filters identity, lifecycle and private data consistently before pagination", async () => {
+  const server: Server = await new Promise((resolve) => {
+    const listening = app.listen(0, "127.0.0.1", () => resolve(listening));
+  });
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("Server failed to bind");
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+  const prefix = `matching-${randomUUID()}`;
+  const now = new Date();
+  const future = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const past = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+  try {
+    const register = async (suffix: string) => {
+      const password = randomUUID();
+      const response = await fetch(`${baseUrl}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: "http://localhost:5173" },
+        body: JSON.stringify({
+          name: `Matching ${suffix}`,
+          email: `${prefix}-${suffix}@student.pradita.ac.id`,
+          password,
+          confirmPassword: password
+        })
+      });
+      assert.equal(response.status, 201);
+      return {
+        id: (await response.json()).data.id as string,
+        ...extractCookiesAndCsrf(response.headers.getSetCookie())
+      };
+    };
+    const owner = await register("owner");
+    const other = await register("other");
+    const item = (
+      suffix: string,
+      reporterId: string,
+      overrides: Partial<Prisma.ItemCreateManyInput> = {}
+    ): Prisma.ItemCreateManyInput => ({
+      id: `${prefix}-${suffix}`,
+      reporterId,
+      title: "MacBook Air M2 13-inch Silver",
+      description: "Tertinggal di meja ruang baca Perpustakaan Pradita.",
+      category: "Elektronik & Gadget",
+      location: "Perpustakaan Pradita",
+      reportType: "found",
+      status: "found",
+      incidentDate: now,
+      expiresAt: future,
+      ...overrides
+    });
+    const sourceId = `${prefix}-source`;
+    const validIds = ["different-model", "cross-title", "partial"].map((suffix) => `${prefix}-${suffix}`);
+
+    await prisma.item.createMany({
+      data: [
+        item("source", owner.id, {
+          reportType: "lost", status: "lost", additionalInfo: "PRIVATE_OWNER_VERIFICATION"
+        }),
+        item("different-model", other.id, {
+          title: "MacBook Air M1 13-inch",
+          additionalInfo: "PRIVATE_CANDIDATE_VERIFICATION"
+        }),
+        item("cross-title", other.id, {
+          title: "Perangkat portabel", description: "MacBook Air M2 13-inch diamankan.",
+          category: null, location: null
+        }),
+        item("partial", other.id, {
+          title: "MacBook Air 13-inch", description: "Data pengujian.", category: null, location: null
+        }),
+        item("seed-earphone", other.id, {
+          title: "Earphone nirkabel dalam casing putih",
+          description: "Ditemukan di area baca Perpustakaan Pradita."
+        }),
+        item("category-only", other.id, {
+          title: "Headphone nirkabel", description: "", location: null
+        }),
+        item("weak-evidence", other.id, {
+          title: "MacBook", description: "", category: null, location: null
+        }),
+        item("own-reporter", owner.id, {
+          title: "MacBook", description: "Disimpan untuk pengujian.", location: null
+        }),
+        item("same-type", other.id, {
+          reportType: "lost", status: "lost", title: "Perangkat portabel", description: "Air 13-inch"
+        }),
+        item("returned", other.id, { status: "returned", returnedAt: now }),
+        item("archived", other.id, { archivedAt: past }),
+        item("expired", other.id, { expiresAt: past }),
+        item("deleted", other.id, { deletedAt: now }),
+        item("description-source", owner.id, {
+          title: "Dompet", description: "Pemindai Canon Lide", reportType: "lost", status: "lost"
+        }),
+        item("description-only", other.id, {
+          title: "Buku", description: "Pemindai Canon Lide", category: null, location: null
+        }),
+        ...[
+          { suffix: "own-returned", status: "returned", returnedAt: now },
+          { suffix: "own-archived", archivedAt: past },
+          { suffix: "own-expired", expiresAt: past },
+          { suffix: "own-deleted", deletedAt: now }
+        ].map(({ suffix, ...state }) => item(suffix, owner.id, {
+          title: "Router TPLink Archer", description: "", reportType: "lost", status: "lost", ...state
+        })),
+        item("inactive-owner-candidate", other.id, { title: "Router TPLink Archer", description: "" })
+      ]
+    });
+
+    const headers = { Cookie: owner.cookieHeader, Origin: "http://localhost:5173" };
+    const read = async (path: string) => {
+      const response = await fetch(`${baseUrl}${path}`, { headers });
+      assert.equal(response.status, 200);
+      return response.json();
+    };
+    const full = await read("/api/matches?page=1&pageSize=100");
+    assert.equal(full.pagination.total, validIds.length);
+    assert.deepEqual(
+      full.data.map((match: { candidate: { id: string } }) => match.candidate.id).sort(),
+      [...validIds].sort()
+    );
+    for (const match of full.data) {
+      assert.equal(match.ownItem.id, sourceId);
+      assert.equal(match.ownItem.additionalInfo, "PRIVATE_OWNER_VERIFICATION");
+      assert.equal(match.candidate.reporter.id, other.id);
+      assert.equal("additionalInfo" in match.candidate, false);
+      assert.equal("email" in match.candidate.reporter, false);
+      assert.equal("phone" in match.candidate.reporter, false);
+      assert.equal("hasIdentityEvidence" in match, false);
+      assert.equal(match.percentage, Math.round((match.score / 105) * 100));
+    }
+
+    const modelMatch = full.data.find((match: { candidate: { id: string } }) => match.candidate.id === validIds[0]);
+    assert.equal(modelMatch.score, 105);
+    assert.equal(modelMatch.percentage, 100);
+    assert.deepEqual(modelMatch.reasons, ["Kategori barang sama", "Kata kunci barang cocok", "Lokasi kampus sama"]);
+    const partialMatch = full.data.find((match: { candidate: { id: string } }) => match.candidate.id === validIds[2]);
+    assert.equal(partialMatch.score, 40);
+    assert.equal(partialMatch.percentage, 38);
+
+    const firstPage = await read("/api/matches?page=1&pageSize=1");
+    const secondPage = await read("/api/matches?page=2&pageSize=1");
+    assert.equal(firstPage.data.length, 1);
+    assert.equal(secondPage.data.length, 1);
+    assert.notEqual(firstPage.data[0].candidate.id, secondPage.data[0].candidate.id);
+    assert.equal(firstPage.pagination.total, validIds.length);
+    assert.equal(secondPage.pagination.total, validIds.length);
+    const dashboard = await read("/api/dashboard/me");
+    assert.equal(dashboard.data.matchCount, full.pagination.total);
+    assert.notEqual(dashboard.data.matchCount, firstPage.data.length);
+
+    const descriptionOnly = await read(`/api/matches?itemId=${prefix}-description-source`);
+    assert.equal(descriptionOnly.pagination.total, 0);
+    assert.deepEqual(descriptionOnly.data, []);
+    const expired = await prisma.item.findUniqueOrThrow({ where: { id: `${prefix}-expired` } });
+    assert.ok(expired.archivedAt);
+
+    const publicResponse = await fetch(`${baseUrl}/api/items/${validIds[0]}`);
+    assert.equal(publicResponse.status, 200);
+    const publicItem = (await publicResponse.json()).data;
+    assert.equal("additionalInfo" in publicItem, false);
+    assert.equal("email" in publicItem.reporter, false);
+    assert.equal("phone" in publicItem.reporter, false);
+  } finally {
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => error ? reject(error) : resolve());
     });
   }
 });
