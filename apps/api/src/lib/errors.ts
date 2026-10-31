@@ -16,6 +16,17 @@ export class ApiError extends Error {
 }
 
 export const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => {
+  if (error instanceof SyntaxError && "status" in error && error.status === 400) {
+    response.status(400).json({
+      error: {
+        code: "INVALID_JSON",
+        message: "Format payload JSON tidak valid.",
+        fields: {}
+      }
+    });
+    return;
+  }
+
   if (error instanceof multer.MulterError) {
     const status = error.code === "LIMIT_FILE_SIZE" ? 413 : 400;
     response.status(status).json({
