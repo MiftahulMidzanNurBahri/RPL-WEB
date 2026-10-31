@@ -18,7 +18,9 @@
     "dev:web": "npm run dev --workspace=@lost-and-found/web",
     "build:web": "npm run build --workspace=@lost-and-found/web",
     "typecheck:web": "npm run typecheck --workspace=@lost-and-found/web",
-    "typecheck:api": "npm run typecheck --workspace=@lost-and-found/api"
+    "typecheck:api": "npm run typecheck --workspace=@lost-and-found/api",
+    "test": "npm run test --workspace=@lost-and-found/api",
+    "build": "npm run build:api && npm run build:web"
   },
   "engines": {
     "node": ">=20.0.0"
