@@ -517,18 +517,135 @@ Buka peramban (browser) Anda dan akses alamat **`http://127.0.0.1:5173/`**. Semu
 
 ---
 
-### Langkah 6: Membangun Berkas Produksi (Production Build & Typecheck)
-Untuk memastikan tidak ada kesalahan tipe data TypeScript dan menghasilkan bundle produksi:
+### Langkah 6: Menjalankan Suite Pengujian (Automated Testing & QA)
+Repositori dilengkapi dengan 61 automated test yang mencakup pengujian unit skema, algoritma pencocokan, retensi dan pengarsipan data, kontrak cookie keamanan, serta pengujian integrasi End-to-End (E2E) API.
+
+Test runner otomatis menyediakan database SQLite terisolasi di `node_modules/.cache/cookie-session-<uuid>/api-test.db` sehingga data pengujian tidak mencemari database development:
 
 ```bash
-# Uji tipe data (Typecheck)
+# Menjalankan seluruh 61 automated tests (Unit, Integration, E2E)
+npm test
+
+# Atau menjalankan langsung dari workspace API
+npm run test --workspace=@lost-and-found/api
+```
+
+Cakupan pengujian otomatis:
+- **Validasi Kontrak Cookie & Sesi**: Default lokal, verifikasi status 401 eksplisit, rotasi token sesi, proteksi brute-force, dan isolasi cache `no-store`.
+- **Validasi Input & Metadata**: Jam operasional penyerahan barang temuan (09:00 - 19:00 WIB), penolakan tanggal insiden masa depan, normalisasi input kosong, dan isolasi privasi profil.
+- **Algoritma Match Engine**: Penilaian skor berbasis kesamaan kategori, normalisasi lokasi kampus bebas, pencocokan token identitas, serta pencegahan false-positive berbasis metadata.
+- **Siklus Hidup & Retensi Barang**: Perhitungan kedaluwarsa 14 hari, pengarsipan otomatis, dan pembersihan berkala barang berstatus `returned` setelah batas retensi 3 hari.
+- **E2E API Integration**: Registrasi, login, pembuatan laporan, pesan klaim/inquiry, pembaruan status, dan pencocokan otomatis antar pengguna.
+
+---
+
+### Langkah 7: Membangun Berkas Produksi (Production Build & Typecheck)
+Untuk memastikan tidak ada kesalahan tipe data TypeScript dan menghasilkan bundle produksi yang teroptimasi:
+
+```bash
+# 1. Uji tipe data (Typecheck Strict Mode)
 npm run typecheck:api
 npm run typecheck:web
 
-# Build bundle produksi
-npm run build:api
-npm run build:web
+# 2. Build bundle produksi (API dan Web SPA)
+npm run build
 ```
+
+Hasil kompilasi:
+- Backend API terkompilasi ke: `apps/api/dist/`
+- Frontend Web SPA terkompilasi ke: `apps/web/dist/`
+
+Untuk menjalankan server backend hasil kompilasi produksi:
+```bash
+npm run start:api
+```
+
+---
+
+## Panduan Deployment Produksi (Production Deployment Guide)
+
+### 1. Persiapan Server & Environment
+- **Runtime**: Node.js versi 20 LTS atau 22 LTS dengan npm 10+.
+- **SSL/TLS Certificate**: Wajib menggunakan HTTPS (misalnya Let's Encrypt) karena konfigurasi cookie produksi mengaktifkan atribut `Secure` dan prefix `__Host-`.
+- **Environment Variables**:
+  ```env
+  NODE_ENV="production"
+  DATABASE_URL="file:../../../data/lost-and-found.db"
+  SESSION_SECRET="<generate-random-secret-minimal-64-karakter>"
+  API_PORT=3000
+  WEB_ORIGIN="https://lostandfound.pradita.ac.id"
+  UPLOAD_DIR="uploads"
+  CSRF_COOKIE_NAME="__Host-laf_csrf"
+  ```
+
+### 2. Konfigurasi Reverse Proxy (Nginx)
+Gunakan Nginx sebagai reverse proxy untuk melayani berkas frontend statis (`apps/web/dist`) dan meneruskan rute API serta uploads ke backend Express port 3000:
+
+```nginx
+server {
+    listen 80;
+    server_name lostandfound.pradita.ac.id;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name lostandfound.pradita.ac.id;
+
+    ssl_certificate /etc/letsencrypt/live/lostandfound.pradita.ac.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/lostandfound.pradita.ac.id/privkey.pem;
+
+    # Frontend Static SPA
+    root /var/www/lost-and-found/apps/web/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Backend API Reverse Proxy
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+
+    # Uploads Static Directory
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+    }
+}
+```
+
+### 3. Manajemen Proses (PM2)
+Gunakan PM2 untuk menjaga keandalan proses backend API di latar belakang:
+```bash
+npm install -g pm2
+pm2 start apps/api/dist/apps/api/src/server.js --name "laf-api" --time
+pm2 save
+pm2 startup
+```
+
+---
+
+## Panduan Troubleshooting Masalah Umum
+
+| Gejala Masalah | Kemungkinan Penyebab | Tindakan Solusi |
+| :--- | :--- | :--- |
+| `SESSION_SECRET must contain at least 32 characters` | Nilai `SESSION_SECRET` di `.env` kosong atau kurang dari 32 karakter | Jalankan `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"` lalu simpan di `.env`. |
+| `CSRF_INVALID` (HTTP 403) pada mutasi data | Header `x-csrf-token` tidak cocok dengan cookie `laf_csrf` atau cookie hilang | Muat ulang halaman di peramban atau panggil endpoint verifikasi `/api/auth/me`. |
+| `INVALID_ORIGIN` (HTTP 403) | Origin request berbeda dengan `WEB_ORIGIN` di `.env` | Samakan URL origin peramban klien dengan nilai `WEB_ORIGIN` di file `.env`. |
+| `OUTSIDE_OPERATING_HOURS` | Waktu temu pelaporan barang temuan di luar 09:00 - 19:00 WIB | Sesuaikan input waktu pertemuan pada rentang operasional resmi kampus (09:00 - 19:00 WIB). |
+| `RATE_LIMITED` (HTTP 429) | Terlalu banyak percobaan autentikasi (maksimal 10 req / 15 menit) | Tunggu 15 menit hingga jendela pembatasan dibuka kembali. |
+| `Layanan autentikasi belum dapat dihubungi` | Server backend (port 3000) belum berjalan | Pastikan perintah `npm run dev:api` atau `npm run start:api` sedang aktif pada terminal lain. |
+
+Untuk panduan safe logging dan detail diagnosis teknis lebih lengkap, baca berkas:
+- **`SECURITY_AUDIT.md`**: Laporan audit keamanan komprehensif dan matriks risiko.
+- **`LOGGING_AND_TROUBLESHOOTING.md`**: Standar safe log dan analisis error level komponen.
 
 ---
 
