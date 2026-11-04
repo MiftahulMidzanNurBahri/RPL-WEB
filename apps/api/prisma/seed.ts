@@ -1,7 +1,15 @@
 import { hash } from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "../src/generated/prisma/client.js";
 
-const prisma = new PrismaClient();
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL must be configured before running the seed.");
+}
+
+const prisma = new PrismaClient({
+  adapter: new PrismaBetterSqlite3({ url: databaseUrl })
+});
 
 async function main(): Promise<void> {
   if (process.env.NODE_ENV === "production") {

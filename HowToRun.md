@@ -9,10 +9,10 @@ Dokumen ini memuat petunjuk teknis lengkap untuk menyiapkan, mengonfigurasi, men
 
 Sebelum memulai, pastikan sistem pengembang telah memenuhi spesifikasi berikut:
 
-- **Node.js**: Versi `20.x` LTS atau lebih baru (direkomendasikan Node.js 20+; didukung minimal v18+).
+- **Node.js**: Versi `20.19+`, `22.12+`, atau lebih baru.
 - **npm**: Versi `10.x` atau lebih baru (menggunakan arsitektur `npm workspaces`).
 - **Sistem Operasi**: Windows, macOS, atau Linux.
-- **SQLite Engine**: Terbawa otomatis melalui driver Prisma Client (tidak memerlukan instalasi server database eksternal).
+- **SQLite**: Driver lokal dipasang bersama dependensi Prisma (tidak memerlukan server database eksternal).
 
 ---
 
@@ -34,7 +34,7 @@ cp .env.example .env
 DATABASE_URL="file:../../../data/lost-and-found.db"
 
 # Session secret untuk enkripsi dan penandatanganan cookie CSRF (min. 32 karakter)
-SESSION_SECRET="05989abd7d25f5879aff7158a14bc3664bbb42bcea588ac5c6f750e908ce32e9"
+SESSION_SECRET="<generate-random-secret-at-least-32-characters>"
 
 # Port server REST API
 API_PORT=3000

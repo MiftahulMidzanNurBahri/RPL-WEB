@@ -1,4 +1,4 @@
-import type { Item, User } from "@prisma/client";
+import type { Item, User } from "../generated/prisma/client.js";
 
 type PublicReporter = Pick<User, "id" | "name" | "avatarInitials">;
 
