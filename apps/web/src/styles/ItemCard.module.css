@@ -15,29 +15,26 @@
   width: 100%;
   height: 100%;
   place-items: center;
-  background-color: var(--color-soft);
-  background-image: linear-gradient(135deg, rgb(255 255 255 / 65%) 25%, transparent 25%, transparent 50%, rgb(255 255 255 / 65%) 50%, rgb(255 255 255 / 65%) 75%, transparent 75%);
-  background-size: 28px 28px;
+  background: linear-gradient(135deg, var(--color-background), var(--color-surface));
   color: var(--color-text-secondary);
 }
 .status { position: absolute; top: 12px; left: 12px; }
 .content { padding: 15px; }
-.category { color: var(--color-blue); font-size: 10px; font-weight: 700; }
+.category { color: var(--color-blue); font-size: 11px; font-weight: 700; }
 .content h3 { overflow: hidden; margin: 6px 0 13px; font-size: 15px; line-height: 1.45; text-overflow: ellipsis; }
-.location { display: flex; min-width: 0; align-items: flex-start; gap: 6px; color: var(--color-muted); font-size: 11px; line-height: 1.5; }
+.location { display: flex; min-width: 0; align-items: flex-start; gap: 6px; color: var(--color-muted); font-size: 12px; line-height: 1.5; }
 .location svg { flex: 0 0 auto; margin-top: 1px; color: var(--color-primary); }
 .location span { overflow: hidden; text-overflow: ellipsis; }
-.cardFooter { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 10px; }
+.cardFooter { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 11px; }
 .openIcon { display: grid; width: 28px; aspect-ratio: 1; place-items: center; background: var(--color-background); color: var(--color-blue); }
 
 :global([data-theme="dark"]) .card:hover {
   border-color: var(--color-border);
 }
 :global([data-theme="dark"]) .imageFallback {
-  background-image: linear-gradient(135deg, rgb(36 33 29 / 6%) 25%, transparent 25%, transparent 50%, rgb(36 33 29 / 6%) 50%, rgb(36 33 29 / 6%) 75%, transparent 75%);
   color: var(--color-muted);
 }
 :global([data-theme="dark"]) .openIcon {
-  background: var(--color-secondary);
+  background: var(--color-background);
   color: var(--color-blue);
 }
