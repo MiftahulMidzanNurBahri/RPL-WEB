@@ -22,8 +22,8 @@
   width: 42px;
   aspect-ratio: 1;
   place-items: center;
-  border: 1px solid #bfdbfe;
-  background: #eff6ff;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
   color: var(--color-blue);
 }
 .brandText { display: grid; gap: 3px; }
@@ -38,7 +38,7 @@
   align-items: center;
   gap: 8px;
   padding: 0 12px;
-  color: #475569;
+  color: var(--color-text-primary);
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
@@ -55,7 +55,7 @@
   gap: 9px;
   padding: 0 14px;
   background: var(--color-blue);
-  color: #ffffff;
+  color: var(--color-on-primary);
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
@@ -79,11 +79,11 @@
 .logoutButton:hover {
   background: var(--color-soft);
   color: var(--color-ink);
-  border-color: #94a3b8;
+  border-color: var(--color-border);
 }
 .themeToggle:focus-visible,
 .logoutButton:focus-visible {
-  outline: 3px solid rgb(37 99 235 / 30%);
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 .menuToggle { display: none; }
@@ -96,7 +96,7 @@
     aspect-ratio: 1;
     place-items: center;
     border: 1px solid var(--color-line);
-    background: #ffffff;
+    background: var(--color-surface);
     color: var(--color-ink);
     cursor: pointer;
   }
@@ -110,7 +110,7 @@
     gap: 12px;
     padding: 14px 24px 20px;
     border-bottom: 1px solid var(--color-line);
-    background: #ffffff;
+    background: var(--color-surface);
     box-shadow: var(--shadow-small);
   }
   .navigationOpen { display: flex; flex-direction: column; }
@@ -125,13 +125,13 @@
 }
 
 :global([data-theme="dark"]) .header {
-  background: rgb(11 17 32 / 92%);
+  background: var(--color-secondary);
   border-bottom-color: var(--color-line);
 }
 :global([data-theme="dark"]) .brandMark {
-  border-color: #1e3a5f;
-  background: #172554;
-  color: #60a5fa;
+  border-color: var(--color-border);
+  background: var(--color-secondary);
+  color: var(--color-primary);
 }
 :global([data-theme="dark"]) .navLink,
 :global([data-theme="dark"]) .profileLink {
