@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { CookieOptions, Response } from "express";
-import type { User } from "@prisma/client";
+import type { User } from "../generated/prisma/client.js";
 import { prisma } from "./prisma.js";
 import { resolveCsrfCookieName } from "../../../../packages/shared/src/cookie-config.js";
 

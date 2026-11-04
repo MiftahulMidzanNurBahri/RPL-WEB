@@ -1,9 +1,9 @@
 # SECURITY AUDIT REPORT
 
 **Target Sistem:** Lost And Found Platform — Universitas Pradita  
-**Tanggal Audit:** 31 Oktober 2026  
+**Tanggal Audit:** 4 November 2026
 **Auditor:** Senior Software Engineer & Application Security Analyst  
-**Status Evaluasi:** PASS WITH CONTROLLED MITIGATIONS (Aplikasi Siap Produksi dengan Konfigurasi yang Direkomendasikan)
+**Status Evaluasi:** PASS WITH CONTROLLED MITIGATIONS (hasil audit dependency bersih; deployment HTTPS eksternal belum diverifikasi)
 
 ---
 
@@ -54,6 +54,8 @@ Perbaikan terkontrol telah diterapkan pada layer penanganan error (penolakan ama
 | **SEC-03** | Auth & Transport | Konfigurasi cookie `__Host-` dan flag `Secure` memerlukan HTTPS pada produksi | **Medium** | **DOCUMENTED / HARDENED** |
 | **SEC-04** | Rate Limiting | Rate limiting menggunakan memory-store bawaan Express | **Low** | **DOCUMENTED / ACCEPTED** |
 | **SEC-05** | File Storage | File upload disimpan di filesystem lokal tanpa pemindaian antivirus eksternal | **Low** | **DOCUMENTED / MITIGATED** |
+| **SEC-06** | Dependency Security | Audit awal menemukan advisory DoS pada dependency langsung dan transitif, termasuk `body-parser`, `multer`, `file-type`, `zod`, `react-router`, dan Prisma | **High / Medium** | **RESOLVED; `npm audit` bersih pada 4 November 2026** |
+| **SEC-07** | Secret Management | Nilai literal `SESSION_SECRET` pernah dicantumkan dalam dokumentasi yang terlacak Git | **High if reused in production** | **DOKUMENTASI DIPERBAIKI; rahasia lokal dirotasi; rotasi production wajib diverifikasi operator** |
 
 ---
 
@@ -97,6 +99,18 @@ Perbaikan terkontrol telah diterapkan pada layer penanganan error (penolakan ama
   - Penamaan berkas acak UUID v4 (`randomUUID()`) mencegah traversal path dan penimpaan file sistem.
   - Penyajian berkas statis melalui rute `/uploads` dengan opsi `dotfiles: 'deny'`, `index: false`, dan `immutable: true`.
 
+### Temuan SEC-06: Advisory Dependency (Resolved)
+- **Tingkat Risiko:** High / Medium (advisory upstream, mayoritas terkait denial of service)
+- **Analisis:** `npm audit` menemukan advisory pada dependency langsung dan transitif dalam lockfile. Audit ini menunjukkan status dependency saat pemeriksaan, bukan bukti bahwa aplikasi telah dieksploitasi.
+- **Tindakan Perbaikan:** Memperbarui dependency yang dapat ditambal tanpa major upgrade (`body-parser`, `multer`, `qs`), lalu memperbarui dependency terdampak lintas major (`file-type`, `zod`, `react-router-dom`, Prisma). Prisma diperbarui ke versi 7 dan memakai generated client serta adapter SQLite yang diwajibkan versi tersebut.
+- **Bukti Validasi:** `npm audit` melaporkan `found 0 vulnerabilities`; seluruh 61 test, typecheck, dan production build lulus setelah pembaruan.
+
+### Temuan SEC-07: Rahasia pada Dokumentasi
+- **Tingkat Risiko:** High jika nilai yang terekspos digunakan pada production.
+- **Analisis:** Dokumentasi yang terlacak Git memuat nilai literal `SESSION_SECRET`. Penghapusan pada versi terbaru tidak menghapusnya dari riwayat commit yang telah dipublikasikan.
+- **Tindakan Perbaikan:** Nilai literal diganti dengan instruksi pembuatan secret; salinan `.env` lokal yang diabaikan Git dirotasi tanpa mencetak nilainya.
+- **Tindakan Operator:** Rotasi `SESSION_SECRET` pada semua environment bersama/production jika nilainya pernah sama dengan contoh yang terekspos. Jangan mengandalkan penghapusan file untuk mencabut secret dari riwayat Git.
+
 ---
 
 ## 5. Ringkasan Perubahan Keamanan yang Diterapkan
@@ -109,6 +123,11 @@ Perbaikan terkontrol telah diterapkan pada layer penanganan error (penolakan ama
    - Menjamin integritas pengujian tanpa risiko manipulasi data produksi/development.
 3. **Penyelarasan Command Build & Test (`package.json`):**
    - Menyediakan entry point standar `npm test` dan `npm run build` di root repository.
+4. **Pembaruan Dependency Rentan:**
+   - Dependency patched yang tersedia dalam rentang versi sebelumnya diperbarui.
+   - Prisma 7, Zod 4, file-type 22, dan React Router 7 dimigrasikan serta divalidasi dengan suite pengujian.
+5. **Penanganan Secret Dokumentasi:**
+   - Mengganti contoh `SESSION_SECRET` literal dengan placeholder dan merotasi secret lokal yang diabaikan Git.
 
 ---
 
@@ -118,6 +137,8 @@ Secara transparan disampaikan bahwa audit ini tidak menyatakan aplikasi 100% beb
 - **Penetration Testing Eksternal:** Pengujian dilakukan dalam lingkungan simulasi lokal dan belum mencakup pengujian load test masif berbasis Distributed Denial of Service (DDoS) jaringan tingkat ISP.
 - **Ketergantungan Eksternal:** Pemeriksaan kerentanan library pihak ketiga mengacu pada basis data `npm audit` per Oktober 2026. Audit dependensi berkala wajib dilakukan secara kontinu.
 - **Konfigurasi Produksi Nyata:** Validasi menyeluruh terhadap flag cookie `__Host-` dan header HTTPS HSTS memerlukan domain produksi dan reverse proxy ber-SSL aktif pada saat rilis publik.
+- **Cakupan Dependency Audit:** `npm audit` bersih pada 4 November 2026; status ini dapat berubah ketika advisory baru diterbitkan sehingga pemeriksaan harus diulang saat rilis.
+- **Rotasi Secret Production:** Tim operator tetap perlu merotasi secret production yang mungkin menggunakan nilai terdahulu; akses environment production tidak tersedia dalam audit ini.
 
 ---
 

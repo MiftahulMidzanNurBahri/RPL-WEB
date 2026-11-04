@@ -1,7 +1,7 @@
 import type { ErrorRequestHandler } from "express";
-import { Prisma } from "@prisma/client";
 import multer from "multer";
 import { ZodError } from "zod";
+import { Prisma } from "../generated/prisma/client.js";
 import { clearSessionCookies } from "./sessions.js";
 
 export class ApiError extends Error {

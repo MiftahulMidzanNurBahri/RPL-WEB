@@ -6,10 +6,10 @@
 
 ## Menjalankan Aplikasi Full-stack Saat Ini
 
-Prasyarat: Node.js 20+ dan npm 9+. Database SQLite berjalan sebagai file lokal; tidak memerlukan server database atau Docker.
+Prasyarat: Node.js 20.19+ (atau 22.12+) dan npm 10+. Database SQLite berjalan sebagai file lokal; tidak memerlukan server database atau Docker.
 
 ```powershell
-npm install
+npm ci
 Copy-Item .env.example .env
 node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
 ```
@@ -441,8 +441,8 @@ lost-and-found/
 ## Panduan Instalasi dan Menjalankan Aplikasi
 
 ### Prasyarat Sistem
-- **Node.js**: Versi 20.0.0 atau yang lebih baru ([Unduh Node.js](https://nodejs.org/))
-- **npm**: Versi 9.0.0 atau yang lebih baru (terpasang otomatis bersama Node.js)
+- **Node.js**: Versi 20.19+, 22.12+, atau lebih baru ([Unduh Node.js](https://nodejs.org/))
+- **npm**: Versi 10.0.0 atau yang lebih baru (terpasang otomatis bersama Node.js)
 - **Git**: Terpasang di sistem operasi Anda
 
 > [!NOTE]
@@ -461,7 +461,7 @@ cd RPL-WEB
 ### Langkah 2: Memasang Seluruh Dependensi
 Jalankan perintah ini di root folder proyek untuk menginstal dependensi seluruh workspace (`apps/api`, `apps/web`, dan `packages/shared`):
 ```bash
-npm install
+npm ci
 ```
 
 ---
@@ -565,7 +565,7 @@ npm run start:api
 ## Panduan Deployment Produksi (Production Deployment Guide)
 
 ### 1. Persiapan Server & Environment
-- **Runtime**: Node.js versi 20 LTS atau 22 LTS dengan npm 10+.
+- **Runtime**: Node.js 20.19+ atau 22.12+ dengan npm 10+.
 - **SSL/TLS Certificate**: Wajib menggunakan HTTPS (misalnya Let's Encrypt) karena konfigurasi cookie produksi mengaktifkan atribut `Secure` dan prefix `__Host-`.
 - **Environment Variables**:
   ```env

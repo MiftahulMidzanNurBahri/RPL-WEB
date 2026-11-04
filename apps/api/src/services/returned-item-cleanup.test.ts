@@ -3,7 +3,8 @@ import { mkdtemp, rm } from "node:fs/promises";
 import test from "node:test";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "../generated/prisma/client.js";
 import { cleanupExpiredReturnedItems, returnedItemCutoff } from "./returned-item-cleanup.js";
 
 const now = new Date("2026-10-08T12:00:00.000Z");
@@ -19,7 +20,9 @@ test("uses a three-day retention cutoff", () => {
 test("purges only expired returned items and preserves related history", async () => {
   const directory = await mkdtemp(join(tmpdir(), "lost-and-found-cleanup-"));
   const databasePath = join(directory, "cleanup.db").replaceAll("\\", "/");
-  const database = new PrismaClient({ datasources: { db: { url: `file:${databasePath}` } } });
+  const database = new PrismaClient({
+    adapter: new PrismaBetterSqlite3({ url: `file:${databasePath}` })
+  });
 
   try {
     await database.$executeRawUnsafe("PRAGMA foreign_keys = ON");

@@ -1,4 +1,4 @@
-import type { Item } from "@prisma/client";
+import type { Item } from "../generated/prisma/client.js";
 import { CampusLocations, DropOffPoints } from "../../../../packages/shared/src/index.js";
 
 const stopWords = new Set([

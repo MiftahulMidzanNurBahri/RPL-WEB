@@ -5,7 +5,7 @@ Menyediakan platform terpusat bagi mahasiswa aktif, dosen, staf akademik, serta 
 
 Use this stack:
 * Frontend: React, TypeScript, Vite, dan CSS Modules/CSS variables; SPA dengan React Router.
-* Backend: Node.js 20+ dan TypeScript dengan Express.
+* Backend: Node.js 20.19+ dan TypeScript dengan Express.
 * Database: SQLite sebagai database relasional utama, disimpan sebagai file persisten di server.
 * ORM: Prisma ORM dengan Prisma Migrate dan Prisma Client.
 * API style: REST API berformat JSON dengan prefix `/api`; gunakan camelCase untuk properti JSON.
@@ -13,7 +13,7 @@ Use this stack:
 * Authentication: sesi server-side dengan token acak pada cookie `HttpOnly`, `SameSite=Lax`, dan `Secure` di production; simpan hash token pada tabel Session, bukan token mentah.
 * Passwords: Argon2id atau bcrypt dengan parameter aman; jangan pernah menyimpan kata sandi plaintext.
 * Image uploads: multipart upload ke penyimpanan filesystem lokal dengan nama file acak; simpan path relatif di SQLite, bukan data URL/base64. Batasi ukuran, MIME type, dan ekstensi.
-* Tooling: npm workspaces, Git, `.env.example`, dan Docker Compose opsional untuk menjalankan aplikasi; SQLite tidak memerlukan database server terpisah. Node.js 20+ memenuhi panduan Node.js 18+ pada README.
+* Tooling: npm workspaces, Git, `.env.example`, dan Docker Compose opsional untuk menjalankan aplikasi; SQLite tidak memerlukan database server terpisah. Aplikasi memerlukan Node.js 20.19+.
 
 Code rules:
 * Gunakan TypeScript strict mode di frontend dan backend; pisahkan komponen, views, domain logic, API, dan persistence layer.
