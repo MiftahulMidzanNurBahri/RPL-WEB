@@ -1,7 +1,7 @@
 .footer {
   margin-top: 48px;
   border-top: 1px solid var(--color-line);
-  background: linear-gradient(105deg, var(--color-surface), var(--color-surface) 54%, var(--color-surface));
+  background: var(--color-surface);
 }
 
 .inner {
@@ -20,7 +20,7 @@
 .campus { display: flex; align-items: center; gap: 9px; color: var(--color-muted); font-size: 11px; }
 .campus > svg { flex: 0 0 auto; color: var(--color-primary); }
 .campus a { display: inline-flex; align-items: center; gap: 3px; color: var(--color-blue); text-decoration: none; }
-.copyright { grid-column: 1 / -1; padding-top: 15px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 10px; }
+.copyright { grid-column: 1 / -1; padding-top: 15px; border-top: 1px solid var(--color-line); color: var(--color-muted); font-size: 11px; }
 
 @media (max-width: 760px) {
   .inner { width: min(100% - 32px, 1240px); grid-template-columns: 1fr; }
@@ -29,5 +29,5 @@
 }
 
 :global([data-theme="dark"]) .footer {
-  background: linear-gradient(105deg, var(--color-secondary), var(--color-secondary) 54%, var(--color-secondary));
+  background: var(--color-surface);
 }
