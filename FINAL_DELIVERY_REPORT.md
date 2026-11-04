@@ -130,11 +130,11 @@ Telah disediakan dokumentasi khusus pada berkas [`LOGGING_AND_TROUBLESHOOTING.md
 | **Production Build** | **PASS** | API terkompilasi ke `apps/api/dist`, Web SPA terkompilasi ke `apps/web/dist` (Vite) |
 | **Security Assessment** | **PASS WITH MITIGATIONS** | `npm audit` bersih; laporan [`SECURITY_AUDIT.md`](./SECURITY_AUDIT.md) mencatat temuan, mitigasi, dan batas pengujian |
 | **Safe Logging Documentation** | **PASS** | Berkas [`LOGGING_AND_TROUBLESHOOTING.md`](./LOGGING_AND_TROUBLESHOOTING.md) tersedia |
-| **CI Pipeline** | **ADDED** | Workflow pull request menjalankan audit dependency, Prisma generate, seluruh test, typecheck, dan build |
+| **CI Pipeline** | **PASS** | GitHub Actions [run #41868541774](https://github.com/MiftahulMidzanNurBahri/RPL-WEB/actions/runs/41868541774) lulus audit, Prisma generate, seluruh test, typecheck, dan build |
 | **Pull Request** | **ACTION REQUIRED** | Branch telah di-push; PR perlu dibuat dari [halaman compare GitHub](https://github.com/MiftahulMidzanNurBahri/RPL-WEB/compare/main...fix/security-readiness-and-validation?expand=1); deployment eksternal belum dilakukan |
 
 ### B. Pull Request & Batasan Deployment
 
 Validasi deployment publik membutuhkan akses ke server, domain, DNS, dan sertifikat TLS yang tidak tersedia dalam repositori. Karena itu tabel di atas mencatat hasil aplikasi production build lokal secara eksplisit, bukan klaim bahwa sistem telah dirilis ke domain publik.
 
-Branch `fix/security-readiness-and-validation` sudah tersedia di GitHub. Halaman compare telah disiapkan, tetapi PR belum dapat dibuat karena sesi browser GitHub saat ini belum login. Setelah pemilik akun membuka PR ke `main`, CI akan berjalan otomatis dan hasilnya dapat dilampirkan sebagai bukti.
+Branch `fix/security-readiness-and-validation` sudah tersedia di GitHub dan CI push lulus. Halaman compare telah disiapkan, tetapi PR belum dapat dibuat karena sesi browser GitHub saat ini belum login. Pemilik akun perlu membuka PR ke `main` melalui tautan compare di atas; perubahan branch tidak akan di-merge otomatis.
