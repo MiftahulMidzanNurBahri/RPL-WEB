@@ -13,10 +13,10 @@
 }
 
 .dot { width: 6px; aspect-ratio: 1; border-radius: 50%; background: currentColor; }
-.lost { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
-.found { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
-.returned { border-color: #cbd5e1; background: #f8fafc; color: #475569; }
+.lost { border-color: var(--color-error-border); background: var(--color-error-wash); color: var(--color-error); }
+.found { border-color: var(--color-success-border); background: var(--color-success-wash); color: var(--color-success); }
+.returned { border-color: var(--color-border); background: var(--color-surface); color: var(--color-text-primary); }
 
-:global([data-theme="dark"]) .lost { border-color: #7f1d1d; background: rgb(127 29 29 / 24%); color: #fca5a5; }
-:global([data-theme="dark"]) .found { border-color: #14532d; background: rgb(20 83 45 / 24%); color: #86efac; }
-:global([data-theme="dark"]) .returned { border-color: #334155; background: rgb(51 65 85 / 24%); color: #94a3b8; }
+:global([data-theme="dark"]) .lost { border-color: var(--color-error-border); background: var(--color-error-wash); color: var(--color-error); }
+:global([data-theme="dark"]) .found { border-color: var(--color-success-border); background: var(--color-success-wash); color: var(--color-success); }
+:global([data-theme="dark"]) .returned { border-color: var(--color-border); background: var(--color-secondary); color: var(--color-text-secondary); }
