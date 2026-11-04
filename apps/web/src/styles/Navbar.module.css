@@ -3,7 +3,7 @@
   z-index: 20;
   top: 0;
   border-bottom: 1px solid var(--color-line);
-  background: rgb(255 255 255 / 96%);
+  background: var(--color-surface);
   backdrop-filter: blur(14px);
 }
 
@@ -28,7 +28,7 @@
 }
 .brandText { display: grid; gap: 3px; }
 .brandText strong { color: var(--color-ink); font-size: 15px; font-weight: 800; }
-.brandText small { color: var(--color-muted); font-size: 9px; font-weight: 700; }
+.brandText small { color: var(--color-muted); font-size: 10px; font-weight: 700; }
 .navigation, .navLinks, .accountLinks { display: flex; align-items: center; }
 .navigation { gap: 32px; }
 .navLinks { gap: 7px; }
@@ -125,17 +125,17 @@
 }
 
 :global([data-theme="dark"]) .header {
-  background: var(--color-secondary);
+  background: var(--color-surface);
   border-bottom-color: var(--color-line);
 }
 :global([data-theme="dark"]) .brandMark {
   border-color: var(--color-border);
-  background: var(--color-secondary);
+  background: var(--color-background);
   color: var(--color-primary);
 }
 :global([data-theme="dark"]) .navLink,
 :global([data-theme="dark"]) .profileLink {
-  color: var(--color-muted);
+  color: var(--color-ink);
 }
 :global([data-theme="dark"]) .navLink:hover,
 :global([data-theme="dark"]) .profileLink:hover {
