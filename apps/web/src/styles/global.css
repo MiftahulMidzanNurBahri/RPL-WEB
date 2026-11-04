@@ -1,45 +1,76 @@
 :root {
   font-family: "Plus Jakarta Sans", sans-serif;
-  color: #0f172a;
-  background: #ffffff;
+  color-scheme: light;
+  color: var(--color-text-primary);
+  background: var(--color-background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --color-ink: #0f172a;
-  --color-muted: #526176;
-  --color-line: #dfe6ee;
-  --color-paper: #ffffff;
-  --color-wash: #f8fafc;
-  --color-soft: #f1f5f9;
-  --color-blue: #2563eb;
-  --color-blue-dark: #1d4ed8;
-  --color-green: #166534;
-  --color-green-wash: #f0fdf4;
-  --color-red: #991b1b;
-  --color-red-wash: #fef2f2;
-  --color-orange: #9a3412;
-  --color-orange-wash: #fff7ed;
-  --shadow-small: 0 5px 18px rgb(15 23 42 / 7%);
+  --color-background: #faf7f2;
+  --color-surface: #ffffff;
+  --color-primary: #c65d26;
+  --color-primary-hover: #a94b1e;
+  --color-on-primary: #ffffff;
+  --color-secondary: #fce5d5;
+  --color-text-primary: #30251f;
+  --color-text-secondary: #82736a;
+  --color-border: #e9ded4;
+  --color-input-background: #ffffff;
+  --color-disabled: #d6cec5;
+  --color-success: #166534;
+  --color-success-strong: #27835a;
+  --color-success-wash: #f0fdf4;
+  --color-success-border: #bbf7d0;
+  --color-error: #991b1b;
+  --color-error-strong: #b91c1c;
+  --color-on-danger: #ffffff;
+  --color-error-wash: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-warning: #9a3412;
+  --color-warning-wash: #fff7ed;
+  --color-ink: var(--color-text-primary);
+  --color-muted: var(--color-text-secondary);
+  --color-line: var(--color-border);
+  --color-paper: var(--color-surface);
+  --color-wash: var(--color-background);
+  --color-soft: var(--color-secondary);
+  --color-blue: var(--color-primary);
+  --color-blue-dark: var(--color-primary-hover);
+  --color-green: var(--color-success);
+  --color-green-wash: var(--color-success-wash);
+  --color-red: var(--color-error);
+  --color-red-wash: var(--color-error-wash);
+  --color-orange: var(--color-warning);
+  --color-orange-wash: var(--color-warning-wash);
+  --shadow-small: 0 5px 18px rgb(48 37 31 / 7%);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  color: #f8fafc;
-  background: #0b1120;
-  --color-ink: #f8fafc;
-  --color-muted: #94a3b8;
-  --color-line: #1e293b;
-  --color-paper: #0f172a;
-  --color-wash: #0b1120;
-  --color-soft: #1e293b;
-  --color-blue: #3b82f6;
-  --color-blue-dark: #60a5fa;
-  --color-green: #4ade80;
-  --color-green-wash: rgb(20 83 45 / 24%);
-  --color-red: #f87171;
-  --color-red-wash: rgb(153 27 27 / 24%);
-  --color-orange: #fb923c;
-  --color-orange-wash: rgb(154 52 18 / 24%);
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  --color-background: #171614;
+  --color-surface: #24211d;
+  --color-primary: #fb923c;
+  --color-primary-hover: #fdba74;
+  --color-on-primary: #171614;
+  --color-secondary: #63371f;
+  --color-text-primary: #f5ede5;
+  --color-text-secondary: #b4a397;
+  --color-border: #40382e;
+  --color-input-background: #1d1b18;
+  --color-disabled: #514940;
+  --color-success: #86efac;
+  --color-success-strong: #4ade80;
+  --color-success-wash: rgb(20 83 45 / 24%);
+  --color-success-border: rgb(74 222 128 / 36%);
+  --color-error: #fca5a5;
+  --color-error-strong: #f87171;
+  --color-on-danger: #171614;
+  --color-error-wash: rgb(153 27 27 / 24%);
+  --color-error-border: rgb(248 113 113 / 36%);
+  --color-warning: #fdba74;
+  --color-warning-wash: rgb(154 52 18 / 24%);
   --shadow-small: 0 5px 18px rgb(0 0 0 / 35%);
 }
 
@@ -51,8 +82,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background-color: var(--color-paper);
-  background-image: linear-gradient(90deg, rgb(37 99 235 / 2%) 1px, transparent 1px);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  background-image: linear-gradient(90deg, rgb(198 93 38 / 2%) 1px, transparent 1px);
   background-size: 84px 100%;
 }
 
@@ -60,11 +92,11 @@ button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 3px solid rgb(37 99 235 / 30%);
+  outline: 3px solid rgb(198 93 38 / 30%);
   outline-offset: 3px;
 }
 
-::selection { color: #ffffff; background: var(--color-blue); }
+::selection { color: var(--color-on-primary); background: var(--color-primary); }
 
 .button {
   display: inline-flex;
@@ -82,18 +114,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 .button:disabled { opacity: .58; cursor: not-allowed; }
-.button--primary { background: var(--color-blue); color: #ffffff; }
-.button--primary:hover:not(:disabled) { background: var(--color-blue-dark); }
-.button--outline { border-color: #cbd5e1; background: #ffffff; color: #24334a; }
-.button--outline:hover:not(:disabled) { border-color: #94a3b8; background: #f8fafc; }
-.button--danger { background: #b91c1c; color: #ffffff; }
-.button--danger:hover:not(:disabled) { background: #991b1b; }
+.button--primary { background: var(--color-primary); color: var(--color-on-primary); }
+.button--primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+.button--outline { border-color: var(--color-border); background: var(--color-surface); color: var(--color-text-primary); }
+.button--outline:hover:not(:disabled) { border-color: var(--color-disabled); background: var(--color-secondary); }
+.button--danger { background: var(--color-error-strong); color: var(--color-on-danger); }
+.button--danger:hover:not(:disabled) { background: var(--color-error); }
 .button--wide { width: 100%; }
 .route-loading { min-height: 40vh; }
 
 :root[data-theme="dark"] body {
-  background-color: var(--color-wash);
-  background-image: linear-gradient(90deg, rgb(59 130 246 / 4%) 1px, transparent 1px);
+  background-color: var(--color-background);
+  background-image: linear-gradient(90deg, rgb(251 146 60 / 4%) 1px, transparent 1px);
 }
 
 :root[data-theme="dark"] .button--outline {
@@ -103,6 +135,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 :root[data-theme="dark"] .button--outline:hover:not(:disabled) {
-  border-color: #475569;
+  border-color: var(--color-disabled);
   background: var(--color-soft);
 }
