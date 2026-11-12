@@ -1,4 +1,3 @@
-
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? "item-images";
@@ -11,7 +10,7 @@ function storageConfig() {
   return {
     baseUrl: SUPABASE_URL.replace(/\/$/, ""),
     apiKey: SUPABASE_SERVICE_ROLE_KEY,
-    bucket: STORAGE_BUCKET
+    bucket: STORAGE_BUCKET,
   };
 }
 
@@ -22,7 +21,7 @@ function encodeObjectPath(path: string): string {
 export async function uploadItemImage(
   buffer: Buffer,
   contentType: string,
-  extension: string
+  extension: string,
 ): Promise<string> {
   const config = storageConfig();
   const objectPath = `items/${crypto.randomUUID()}.${extension}`;
@@ -36,21 +35,25 @@ export async function uploadItemImage(
         Authorization: `Bearer ${config.apiKey}`,
         "Content-Type": contentType,
         "x-upsert": "false",
-        "cache-control": "3600"
+        "cache-control": "3600",
       },
-      body: new Uint8Array(buffer)
-    }
+      body: new Uint8Array(buffer),
+    },
   );
 
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(`Supabase image upload failed (${response.status}): ${detail}`);
+    throw new Error(
+      `Supabase image upload failed (${response.status}): ${detail}`,
+    );
   }
 
   return objectPath;
 }
 
-export async function deleteItemImage(objectPath: string | null): Promise<void> {
+export async function deleteItemImage(
+  objectPath: string | null,
+): Promise<void> {
   if (!objectPath || objectPath.startsWith("uploads/")) return;
 
   const config = storageConfig();
@@ -62,20 +65,30 @@ export async function deleteItemImage(objectPath: string | null): Promise<void> 
       headers: {
         apikey: config.apiKey,
         Authorization: `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prefixes: [objectPath] })
-    }
+      body: JSON.stringify({ prefixes: [objectPath] }),
+    },
   );
 
   if (!response.ok) {
-    throw new Error(`Supabase image deletion failed (${response.status}): ${await response.text()}`);
+    throw new Error(
+      `Supabase image deletion failed (${response.status}): ${await response.text()}`,
+    );
   }
 }
 
-export function getItemImagePublicUrl(objectPath: string | null): string | null {
+export function getItemImagePublicUrl(
+  objectPath: string | null,
+): string | null {
   if (!objectPath) return null;
 
+  // Kompatibilitas gambar lama yang masih tersimpan di folder uploads.
+  if (objectPath.startsWith("uploads/")) {
+    return `/${objectPath.replaceAll("\\", "/")}`;
+  }
+
+  // Jika sudah berupa URL lengkap, gunakan langsung.
   if (/^https?:\/\//i.test(objectPath)) return objectPath;
 
   const config = storageConfig();

@@ -22,33 +22,40 @@ app.use(["/api/auth", "/api/profile"], (_request, response, next) => {
   next();
 });
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || isAllowedOrigin(origin)) {
-      callback(null, true);
-    } else {
-      callback(null, false);
-    }
-  },
-  credentials: true,
-  maxAge: 600
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || isAllowedOrigin(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+    maxAge: 600,
+  }),
+);
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use(verifyRequestOrigin);
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 300,
-  standardHeaders: "draft-7",
-  legacyHeaders: false
-}));
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 300,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+  }),
+);
 
-app.use("/uploads", express.static(resolve(projectRoot, process.env.UPLOAD_DIR ?? "uploads"), {
-  dotfiles: "deny",
-  index: false,
-  immutable: true,
-  maxAge: "1d"
-}));
+app.use(
+  "/uploads",
+  express.static(resolve(projectRoot, process.env.UPLOAD_DIR ?? "uploads"), {
+    dotfiles: "deny",
+    index: false,
+    immutable: true,
+    maxAge: "1d",
+  }),
+);
 
 app.get("/api/health", (_request, response) => {
   response.json({ data: { status: "ok" } });
@@ -69,3 +76,4 @@ app.use("/api", (_request, _response, next) => {
 app.use(errorHandler);
 
 export { app };
+export default app;
