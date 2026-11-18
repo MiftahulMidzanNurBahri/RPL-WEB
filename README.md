@@ -2,11 +2,11 @@
 
 > Lost And Found adalah platform web Single Page Application (SPA) yang dirancang khusus untuk civitas akademika dan mahasiswa Universitas Pradita (Pradita University) guna mengelola pelaporan, pencarian, dan pengembalian barang tertinggal atau hilang di lingkungan kampus secara terpusat, transparan, dan terverifikasi.
 
-> **Catatan implementasi:** Bagian LocalStorage dan struktur direktori di bawah mendokumentasikan prototype awal. Source workspace saat ini menggunakan React/Vite, Express, Prisma, dan SQLite.
+> **Catatan implementasi:** Bagian LocalStorage dan struktur direktori di bawah mendokumentasikan prototype awal. Source workspace saat ini menggunakan React/Vite, Express, Prisma, dan PostgreSQL.
 
 ## Menjalankan Aplikasi Full-stack Saat Ini
 
-Prasyarat: Node.js 20.19+ (atau 22.12+) dan npm 10+. Database SQLite berjalan sebagai file lokal; tidak memerlukan server database atau Docker.
+Prasyarat: Node.js 20.19+ (atau 22.12+), npm 10+, dan database PostgreSQL. Railway menyediakan PostgreSQL terkelola untuk deployment.
 
 ```powershell
 npm ci
@@ -14,7 +14,7 @@ Copy-Item .env.example .env
 node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
 ```
 
-Masukkan nilai acak dari perintah terakhir sebagai `SESSION_SECRET` di `.env`, lalu siapkan database:
+Masukkan nilai acak dari perintah terakhir sebagai `SESSION_SECRET` di `.env`. Atur `DATABASE_URL` ke connection string PostgreSQL lokal atau Railway, lalu siapkan database:
 
 ```powershell
 npm run db:generate
@@ -36,7 +36,7 @@ Frontend tersedia di `http://127.0.0.1:5173/` dan API di `http://localhost:3000/
 
 ## Menjalankan Backend
 
-Jalankan perintah berikut dari folder utama proyek. Backend menggunakan SQLite, sehingga tidak memerlukan server database terpisah.
+Jalankan perintah berikut dari folder utama proyek. Backend menggunakan PostgreSQL melalui Prisma.
 
 1. Pasang dependensi dan siapkan file environment jika belum ada:
 
@@ -45,9 +45,9 @@ Jalankan perintah berikut dari folder utama proyek. Backend menggunakan SQLite, 
   Copy-Item .env.example .env
   ```
 
-  Jika file `.env` sudah ada, jangan jalankan `Copy-Item` agar konfigurasi lokal tidak tertimpa. Ganti nilai `SESSION_SECRET` di `.env` dengan string acak minimal 32 karakter. `API_PORT` dapat diubah bila port `3000` sedang digunakan.
+  Jika file `.env` sudah ada, jangan jalankan `Copy-Item` agar konfigurasi lokal tidak tertimpa. Atur `DATABASE_URL` ke connection string PostgreSQL, ganti `SESSION_SECRET` dengan string acak minimal 32 karakter, dan gunakan `PORT` atau `API_PORT` untuk port API.
 
-2. Siapkan Prisma dan database. Jalankan seed saat pertama kali menyiapkan data demo:
+2. Siapkan Prisma dan database. Untuk database baru, terapkan migrasi; seed demo hanya untuk development:
 
   ```powershell
   npm run db:generate
@@ -62,6 +62,16 @@ Jalankan perintah berikut dari folder utama proyek. Backend menggunakan SQLite, 
   ```
 
   Backend berjalan di `http://localhost:3000/` secara default. Biarkan terminal ini tetap berjalan. Untuk menggunakan aplikasi web, buka terminal lain dan jalankan `npm run dev:web`; frontend tersedia di `http://127.0.0.1:5173/`.
+
+### Deployment Railway
+
+1. Tambahkan layanan **PostgreSQL** di proyek Railway.
+2. Pada layanan API, set `DATABASE_URL` sebagai variable reference ke `DATABASE_URL` dari layanan PostgreSQL (misalnya `${{Postgres.DATABASE_URL}}`). Jangan menaruh kredensial database di repository.
+3. Set `SESSION_SECRET` ke nilai acak minimal 32 karakter dan `WEB_ORIGIN` ke URL frontend production.
+4. Gunakan `npm run db:generate && npm run build:api` sebagai build command. Jalankan `npm run db:migrate:deploy` saat deployment sebelum proses API dimulai, lalu gunakan `npm run start:api`.
+5. Gunakan `/api/health` sebagai health check. Endpoint ini menguji query ke database, sehingga status sehat hanya dikirim jika koneksi PostgreSQL berhasil.
+
+Runtime dan migrasi Prisma menggunakan `DATABASE_URL`.
 
 ---
 
@@ -398,15 +408,13 @@ Seluruh status data tersimpan persisten pada penyimpanan lokal browser (`localSt
 ```text
 lost-and-found/
 ├── .env.example               # Template variabel environment
-├── .env                       # Konfigurasi environment lokal (SQLite, Session, Port)
+├── .env                       # Konfigurasi environment lokal (PostgreSQL, Session, Port)
 ├── .gitignore                 # Daftar berkas abaian Git
 ├── package.json               # Konfigurasi workspace monorepo & script utama
 ├── package-lock.json          # Rekam versi dependensi npm
 ├── README.md                  # Dokumentasi teknis proyek Universitas Pradita
-├── data/                      # Direktori basis data SQLite lokal
-│   └── lost-and-found.db      # Berkas database SQLite
 ├── apps/
-│   ├── api/                   # Backend REST API (Node.js, Express, Prisma ORM, SQLite)
+│   ├── api/                   # Backend REST API (Node.js, Express, Prisma ORM, PostgreSQL)
 │   │   ├── prisma/            # Skema Prisma & seed script
 │   │   │   ├── schema.prisma  # Skema database relasional (User, Item, Inquiry, Activity)
 │   │   │   └── seed.ts        # Data awal demonstrasi kampus Pradita
@@ -446,7 +454,7 @@ lost-and-found/
 - **Git**: Terpasang di sistem operasi Anda
 
 > [!NOTE]
-> Proyek ini menggunakan **SQLite** yang berjalan sebagai berkas lokal di folder `data/lost-and-found.db`. Anda **tidak memerlukan** instalasi PostgreSQL/MySQL terpisah atau Docker untuk menjalankannya.
+> API menggunakan **PostgreSQL**. Atur `DATABASE_URL` pada `.env` ke database PostgreSQL lokal atau Railway sebelum menjalankan migrasi. Railway dapat menyediakan database PostgreSQL tanpa instalasi lokal.
 
 ---
 
@@ -481,14 +489,14 @@ Buka berkas `.env` dan ganti nilai `SESSION_SECRET` dengan string acak yang diha
 
 ---
 
-### Langkah 4: Menyiapkan Basis Data (Prisma & SQLite)
+### Langkah 4: Menyiapkan Basis Data (Prisma & PostgreSQL)
 Jalankan rangkaian migrasi dan pengisian data awal (seed) kampus:
 ```bash
 # 1. Menghasilkan Prisma Client
 npm run db:generate
 
-# 2. Menjalankan migrasi skema ke SQLite
-npm run db:migrate
+# 2. Menerapkan migrasi skema ke PostgreSQL
+npm run db:migrate:deploy
 
 # 3. Mengisi data awal demo (akun demo, laporan barang awal kampus)
 npm run db:seed
@@ -520,7 +528,7 @@ Buka peramban (browser) Anda dan akses alamat **`http://127.0.0.1:5173/`**. Semu
 ### Langkah 6: Menjalankan Suite Pengujian (Automated Testing & QA)
 Repositori dilengkapi dengan 61 automated test yang mencakup pengujian unit skema, algoritma pencocokan, retensi dan pengarsipan data, kontrak cookie keamanan, serta pengujian integrasi End-to-End (E2E) API.
 
-Test runner otomatis menyediakan database SQLite terisolasi di `node_modules/.cache/cookie-session-<uuid>/api-test.db` sehingga data pengujian tidak mencemari database development:
+Catatan: test harness database saat ini masih menggunakan SQLite, sedangkan Prisma schema dan migrasi aplikasi menggunakan PostgreSQL. Harness perlu diselaraskan sebelum integration suite dijalankan; jangan arahkan test ke database development, production, atau Railway.
 
 ```bash
 # Menjalankan seluruh 61 automated tests (Unit, Integration, E2E)
@@ -570,7 +578,7 @@ npm run start:api
 - **Environment Variables**:
   ```env
   NODE_ENV="production"
-  DATABASE_URL="file:../../../data/lost-and-found.db"
+  DATABASE_URL="postgresql://<user>:<password>@<host>:<port>/<database>?schema=public"
   SESSION_SECRET="<generate-random-secret-minimal-64-karakter>"
   API_PORT=3000
   WEB_ORIGIN="https://lostandfound.pradita.ac.id"

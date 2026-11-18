@@ -13,10 +13,10 @@ export async function cleanupExpiredReturnedItems(
   now = new Date(),
   database: CleanupDatabase = prisma
 ): Promise<number> {
-  const cutoff = returnedItemCutoff(now).toISOString();
+  const cutoff = returnedItemCutoff(now);
   return database.$executeRaw`
     DELETE FROM "Item"
     WHERE "status" = 'returned'
-      AND julianday("updatedAt") <= julianday(${cutoff})
+      AND "updatedAt" <= ${cutoff}
   `;
 }

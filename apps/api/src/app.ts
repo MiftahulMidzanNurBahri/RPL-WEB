@@ -10,6 +10,7 @@ import { domainRouter } from "./routes/domain.routes.js";
 import { itemsRouter } from "./routes/items.routes.js";
 import { errorHandler, ApiError } from "./lib/errors.js";
 import { projectRoot } from "./lib/paths.js";
+import { prisma } from "./lib/prisma.js";
 import { verifyRequestOrigin, isAllowedOrigin } from "./middleware/security.js";
 import { cleanupExpiredReturnedItems } from "./services/returned-item-cleanup.js";
 
@@ -57,7 +58,8 @@ app.use(
   }),
 );
 
-app.get("/api/health", (_request, response) => {
+app.get("/api/health", async (_request, response) => {
+  await prisma.$queryRaw`SELECT 1`;
   response.json({ data: { status: "ok" } });
 });
 app.use("/api", (request, _response, next) => {
