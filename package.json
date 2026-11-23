@@ -2,6 +2,7 @@
   "name": "lost-and-found-pradita",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/api",
     "apps/web",
@@ -20,6 +21,8 @@
     "typecheck:web": "npm run typecheck --workspace=@lost-and-found/web",
     "typecheck:api": "npm run typecheck --workspace=@lost-and-found/api",
     "test": "npm run test --workspace=@lost-and-found/api",
+    "pipeline": "node scripts/pipeline.js",
+    "pipeline:fail": "node scripts/pipeline.js --simulate-fail",
     "build": "npm run build:api && npm run build:web"
   },
   "engines": {

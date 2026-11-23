@@ -88,3 +88,24 @@ export function parseIncidentDate(value: string): Date {
   }
   return date;
 }
+
+export const registrationSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  email: emailSchema,
+  password: z.string().min(8).max(128),
+  confirmPassword: z.string().min(8).max(128),
+  studentNumber: z.string().trim().min(1).max(40).optional(),
+  phone: z.string().trim().max(32).optional()
+}).strict().refine((input) => input.password === input.confirmPassword, {
+  message: "Kata sandi dan konfirmasi kata sandi tidak sama.",
+  path: ["confirmPassword"]
+});
+
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1).max(128)
+}).strict();
+
+export function initials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]!.toUpperCase()).join("");
+}

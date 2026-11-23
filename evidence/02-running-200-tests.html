@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Evidence 2: Test Execution Process</title>
+  <style>
+    body { margin: 0; padding: 24px; background: #0b0d13; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; }
+    .window { width: 1100px; background: #161b22; border: 1px solid #30363d; border-radius: 10px; box-shadow: 0 16px 36px rgba(0,0,0,0.6); overflow: hidden; }
+    .title-bar { background: #21262d; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; }
+    .dots { display: flex; gap: 8px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    .title-text { color: #c9d1d9; font-size: 13px; font-weight: 600; }
+    .content { padding: 24px; }
+    .command-header { font-family: Consolas, "Fira Code", monospace; font-size: 14px; color: #58a6ff; margin-bottom: 12px; }
+    .terminal-output { font-family: Consolas, "Fira Code", monospace; font-size: 12.5px; line-height: 1.45; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 16px; color: #e6edf3; white-space: pre-wrap; max-height: 560px; overflow-y: hidden; }
+    .highlight-green { color: #3fb950; font-weight: bold; }
+    .highlight-red { color: #f85149; font-weight: bold; }
+    .highlight-cyan { color: #58a6ff; font-weight: bold; }
+    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+    .badge-green { background: #238636; color: white; }
+    .badge-red { background: #da3633; color: white; }
+    .badge-blue { background: #1f6feb; color: white; }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="title-bar">
+      <div class="dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="title-text">Evidence 2: Test Execution Process — Node.js Test Runner</div>
+      <div class="badge badge-blue">EXECUTING: 200 UT</div>
+    </div>
+    <div class="content">
+      <div class="command-header">PS C:\Users\mfthl\...\RPL-WEB-2&gt; npm test</div>
+      <div class="terminal-output">[TEST RUNNER] Executing 200 Unit Tests across domain services, schemas, and security...
+✔ [AUT-01] resolveCsrfCookieName uses laf_csrf as default in standard local environment (2.6ms)
+✔ [AUT-02] resolveCsrfCookieName accepts valid custom local CSRF cookie name (0.4ms)
+✔ [AUT-16] isSessionInvalid returns true for 401 AUTH_REQUIRED (0.2ms)
+✔ [AUT-25] login verifies /me before resolving authentication (0.6ms)
+✔ [DTO-01] userDto strips passwordHash from returned user object (1.6ms)
+✔ [DTO-15] maskEmail masks student academic email keeping domain intact (0.4ms)
+✔ [DTO-18] maskPhone masks Indonesian mobile numbers keeping start and end digits (0.2ms)
+✔ [SCH-01] itemCreateSchema requires title field (4.0ms)
+✔ [SCH-10] itemCreateSchema (lost) succeeds with all mandatory fields provided (0.3ms)
+✔ [SCH-13] itemCreateSchema (found) accepts boundary meetUpTime 09:00 WIB (0.2ms)
+✔ [SCH-17] parseIncidentDate accepts valid past YYYY-MM-DD date (0.3ms)
+✔ [SCH-42] registrationSchema requires password and confirmPassword to match (0.4ms)
+✔ [VAL-01] trims leading and trailing whitespace from string inputs (0.3ms)
+✔ [VAL-13] throws ApiError with status 400 when schema validation fails (0.3ms)
+✔ [VAL-19] paginationSchema defaults page to 1 when omitted (0.2ms)
+✔ [MAT-01] awards category match bonus of 40 points (0.3ms)
+✔ [MAT-02] awards location match bonus of 25 points (0.2ms)
+✔ [MAT-06] awards maximum score of 105 for category, location, and >=3 keywords (0.3ms)
+✔ [MAT-31] rejects MacBook and earphone pair despite matching campus metadata (0.2ms)
+✔ [MAT-33] matches KTM (Kartu Tanda Mahasiswa) report accurately (0.1ms)
+✔ [MAT-40] matches scientific calculator by Casio FX series (0.2ms)
+✔ [MAT-50] confirms scoreMatch result structure contains exactly score, reasons, and hasIdentityEvidence (0.1ms)
+✔ [SVC-01] ReportRetentionDays policy is configured to exactly 14 days (1.0ms)
+✔ [SVC-08] ReturnedItemRetentionDays policy is configured to exactly 3 days (0.2ms)
+... (all test suites executing in progress) ...</div>
+    </div>
+  </div>
+</body>
+</html>

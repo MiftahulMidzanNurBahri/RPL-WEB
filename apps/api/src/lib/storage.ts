@@ -18,6 +18,17 @@ function encodeObjectPath(path: string): string {
   return path.split("/").map(encodeURIComponent).join("/");
 }
 
+export { encodeObjectPath };
+
+export function isValidImageMimeType(mimeType: string): boolean {
+  return ["image/jpeg", "image/png", "image/webp"].includes(mimeType);
+}
+
+export function isAllowedFileSize(bytes: number, maxBytes = 5 * 1024 * 1024): boolean {
+  return bytes > 0 && bytes <= maxBytes;
+}
+
+
 export async function uploadItemImage(
   buffer: Buffer,
   contentType: string,
@@ -83,9 +94,10 @@ export function getItemImagePublicUrl(
 ): string | null {
   if (!objectPath) return null;
 
-  // Kompatibilitas gambar lama yang masih tersimpan di folder uploads.
-  if (objectPath.startsWith("uploads/")) {
-    return `/${objectPath.replaceAll("\\", "/")}`;
+  // Normalisasi path separator untuk Windows & compatibility upload lama
+  const normalizedPath = objectPath.replaceAll("\\", "/");
+  if (normalizedPath.startsWith("uploads/")) {
+    return `/${normalizedPath}`;
   }
 
   // Jika sudah berupa URL lengkap, gunakan langsung.
