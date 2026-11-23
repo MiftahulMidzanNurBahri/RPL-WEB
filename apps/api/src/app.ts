@@ -17,6 +17,7 @@ import { cleanupExpiredReturnedItems } from "./services/returned-item-cleanup.js
 const app = express();
 
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
 // Set this before parsers, security checks and rate limiters can return early.
 app.use(["/api/auth", "/api/profile"], (_request, response, next) => {
   response.setHeader("Cache-Control", "no-store");
@@ -46,6 +47,7 @@ app.use(
     limit: 300,
     standardHeaders: "draft-7",
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false },
   }),
 );
 
@@ -63,8 +65,13 @@ app.get("/", (_request, response) => {
   response.json({ data: { status: "ok", service: "Lost and Found API" } });
 });
 app.get(["/health", "/api/health"], async (_request, response) => {
-  await prisma.$queryRaw`SELECT 1`;
-  response.json({ data: { status: "ok" } });
+  let dbStatus = "ok";
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch {
+    dbStatus = "disconnected";
+  }
+  response.json({ data: { status: "ok", service: "Lost and Found API", database: dbStatus } });
 });
 app.use("/api", (request, _response, next) => {
   if (request.method !== "GET") {
