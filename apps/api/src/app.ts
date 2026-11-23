@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import rateLimit from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import { authRouter } from "./routes/auth.routes.js";
 import { domainRouter } from "./routes/domain.routes.js";
@@ -22,7 +22,8 @@ app.use(["/api/auth", "/api/profile"], (_request, response, next) => {
   response.setHeader("Cache-Control", "no-store");
   next();
 });
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+const helmetFn: any = helmet;
+app.use(helmetFn({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(
   cors({
     origin: (origin, callback) => {
