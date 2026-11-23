@@ -1,4 +1,5 @@
 import type { Item, User } from "../generated/prisma/client.js";
+import { getItemImagePublicUrl } from "./storage.js";
 
 type PublicReporter = Pick<User, "id" | "name" | "avatarInitials">;
 
@@ -12,9 +13,10 @@ export function itemDto(
   options: { isMine?: boolean; includePrivate?: boolean } = {}
 ) {
   const { additionalInfo, imagePath, reporterId: _reporterId, ...publicFields } = item;
+
   return {
     ...publicFields,
-    imageUrl: imagePath ? `/${imagePath.replaceAll("\\", "/")}` : null,
+    imageUrl: getItemImagePublicUrl(imagePath),
     ...(options.includePrivate ? { additionalInfo } : {}),
     ...(item.reporter ? { reporter: item.reporter } : {}),
     ...(options.isMine === undefined ? {} : { isMine: options.isMine })

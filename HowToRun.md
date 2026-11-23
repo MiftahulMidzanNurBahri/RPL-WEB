@@ -12,7 +12,7 @@ Sebelum memulai, pastikan sistem pengembang telah memenuhi spesifikasi berikut:
 - **Node.js**: Versi `20.19+`, `22.12+`, atau lebih baru.
 - **npm**: Versi `10.x` atau lebih baru (menggunakan arsitektur `npm workspaces`).
 - **Sistem Operasi**: Windows, macOS, atau Linux.
-- **SQLite**: Driver lokal dipasang bersama dependensi Prisma (tidak memerlukan server database eksternal).
+- **PostgreSQL**: Database lokal atau layanan PostgreSQL terkelola seperti Railway.
 
 ---
 
@@ -30,8 +30,8 @@ cp .env.example .env
 
 ### Konfigurasi Standar `.env`:
 ```ini
-# Path SQLite relatif terhadap apps/api/prisma/schema.prisma
-DATABASE_URL="file:../../../data/lost-and-found.db"
+# Connection string PostgreSQL lokal atau Railway
+DATABASE_URL="postgresql://postgres:password@localhost:5432/lost_and_found?schema=public"
 
 # Session secret untuk enkripsi dan penandatanganan cookie CSRF (min. 32 karakter)
 SESSION_SECRET="<generate-random-secret-at-least-32-characters>"
@@ -59,19 +59,19 @@ npm install
 ```
 
 ### Langkah 2: Persiapan Direktori Persisten
-Pastikan folder `data/` dan `uploads/` tersedia di root repositori:
+Pastikan folder `uploads/` tersedia di root repositori:
 ```bash
-# Pastikan folder ada (sudah memiliki .gitkeep)
-mkdir -p data uploads
+# Pastikan folder uploads tersedia (sudah memiliki .gitkeep)
+mkdir -p uploads
 ```
 
 ### Langkah 3: Sinkronisasi Skema Database & Migrasi Prisma
-Jalankan migrasi database SQLite untuk membuat seluruh tabel dan indeks:
+Jalankan migrasi PostgreSQL untuk membuat seluruh tabel dan indeks:
 ```bash
-npm run db:migrate
+npm run db:migrate:deploy
 ```
 
-*Catatan: Perintah di atas sekaligus menjalankan `prisma generate` untuk memperbarui Prisma Client.*
+Untuk pengembangan skema lokal, gunakan `npm run db:migrate`. Pastikan `DATABASE_URL` mengarah ke database PostgreSQL yang benar sebelum menjalankan migrasi.
 
 ### Langkah 4: Seeding Data Awal (*Development Seed*)
 Isi database dengan akun demo, data barang awal, dan riwayat aktivitas demonstrasi:
@@ -101,6 +101,16 @@ npm run dev:api
 ```
 - Server REST API akan berjalan pada: **`http://localhost:3000`**
 - Endpoint kesehatan sistem: **`http://localhost:3000/api/health`**
+
+## Deployment Railway
+
+1. Buat layanan PostgreSQL pada proyek Railway.
+2. Di layanan API, set `DATABASE_URL` ke variable reference PostgreSQL, misalnya `${{Postgres.DATABASE_URL}}`.
+3. Set `SESSION_SECRET` dengan nilai acak minimal 32 karakter dan `WEB_ORIGIN` ke URL frontend production.
+4. Gunakan `npm run db:generate && npm run build:api` sebagai build command. Jalankan `npm run db:migrate:deploy` sebelum `npm run start:api` pada setiap deployment.
+5. Set health check path ke `/api/health`; endpoint akan menjalankan query `SELECT 1` untuk memverifikasi koneksi database.
+
+Jangan commit connection string atau nilai secret ke repository. Seed akun demo hanya untuk development dan ditolak pada `NODE_ENV=production`.
 
 ### Menjalankan Frontend Web:
 Buka terminal baru pada root repositori:
@@ -159,7 +169,7 @@ Respons `/api/auth/*`, `/api/profile`, dan error sesi/CSRF/Origin terkait menggu
 
 ### Pengujian database terisolasi
 
-Integration test menulis data. Jangan menjalankan suite terhadap database development. Siapkan salinan disposable database berskema terkini di `node_modules/.cache/cookie-session-<unik>/api-test.db`, lalu tetapkan **keduanya**, `DATABASE_URL` dan `TEST_DATABASE_URL`, ke URL `file:` absolut salinan tersebut pada proses test. Gunakan `SESSION_SECRET` acak sementara untuk proses test. Jangan melakukan migrasi atau purge database utama. Test baru menolak target di luar lokasi disposable tersebut. Jalankan perintah dari root repository:
+Integration test menulis data. Jangan arahkan suite ke database development, production, atau Railway. Harness test repository saat ini masih memakai SQLite, sementara Prisma schema dan migrasi sudah PostgreSQL; test database harness perlu diselaraskan sebelum menjalankan integration suite. Typecheck/build dan validasi schema tetap dapat dijalankan secara lokal.
 
 ```text
 node_modules/.bin/tsx --test apps/api/src/lib/auth-contract.test.ts
