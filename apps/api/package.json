@@ -19,6 +19,11 @@
     "@prisma/adapter-better-sqlite3": "^7.10.1",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.15.30",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -29,16 +34,11 @@
     "helmet": "^8.1.0",
     "multer": "^2.0.1",
     "pg": "^8.23.1",
+    "prisma": "^7.10.1",
+    "typescript": "^5.8.3",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.9",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/multer": "^2.0.0",
-    "@types/node": "^22.15.30",
-    "prisma": "^7.10.1",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "tsx": "^4.19.4"
   }
 }
