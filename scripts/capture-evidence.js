@@ -320,3 +320,4 @@ fs.writeFileSync(html07Path, html07);
 captureScreenshot(html07Path, path.resolve(evidenceDir, "07-branch-v1.1-prepared.png"));
 
 console.log("\nAll 7 evidence screenshots captured successfully in evidence/ directory!");
+
