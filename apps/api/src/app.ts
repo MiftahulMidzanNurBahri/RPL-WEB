@@ -58,7 +58,10 @@ app.use(
   }),
 );
 
-app.get("/api/health", async (_request, response) => {
+app.get("/", (_request, response) => {
+  response.json({ data: { status: "ok", service: "Lost and Found API" } });
+});
+app.get(["/health", "/api/health"], async (_request, response) => {
   await prisma.$queryRaw`SELECT 1`;
   response.json({ data: { status: "ok" } });
 });
