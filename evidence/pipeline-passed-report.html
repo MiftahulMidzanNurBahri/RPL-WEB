@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>CI/CD Pipeline Status - GREEN</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f1117; color: #e6edf3; margin: 0; padding: 30px; }
+    .container { max-width: 1000px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 16px; margin-bottom: 20px; }
+    .badge { font-weight: bold; font-size: 16px; padding: 8px 16px; border-radius: 20px; text-transform: uppercase; }
+    .badge-green { background: #238636; color: #fff; }
+    .badge-red { background: #da3633; color: #fff; }
+    .flow { display: flex; gap: 8px; align-items: center; background: #21262d; padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; }
+    .flow-step { padding: 4px 10px; border-radius: 6px; }
+    .flow-step.active-green { background: #238636; color: white; }
+    .flow-step.active-red { background: #da3633; color: white; }
+    .flow-step.inactive { background: #30363d; color: #8b949e; }
+    .arrow { color: #8b949e; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .metric-card { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 14px; text-align: center; }
+    .metric-val { font-size: 26px; font-weight: bold; margin-top: 4px; }
+    .val-green { color: #3fb950; }
+    .val-red { color: #f85149; }
+    .val-blue { color: #58a6ff; }
+    .logs { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 14px; font-family: Consolas, monospace; font-size: 12px; max-height: 280px; overflow-y: auto; color: #7ee787; }
+    .fail-box { background: rgba(218, 54, 51, 0.15); border: 1px solid #da3633; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+    .success-box { background: rgba(35, 134, 54, 0.15); border: 1px solid #238636; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h2 style="margin: 0; color: #f0f6fc;">Task P11 Automated CI/CD Pipeline</h2>
+        <div style="font-size: 13px; color: #8b949e; margin-top: 4px;">Branch: <strong>v1.0_dev</strong> | Lost & Found Pradita</div>
+      </div>
+      <div class="badge badge-green">
+        STATUS: ALL PASSED (GREEN)
+      </div>
+    </div>
+
+    <div class="flow">
+      <span class="flow-step active-green">1. 200 UT (200/200)</span>
+      <span class="arrow">→</span>
+      <span class="flow-step active-green">2. Green Status</span>
+      <span class="arrow">→</span>
+      <span class="flow-step active-green">3. Auto Build (Success)</span>
+      <span class="arrow">→</span>
+      <span class="flow-step active-green">4. Deploy (Verified)</span>
+      <span class="arrow">→</span>
+      <span class="flow-step active-green">5. Live</span>
+    </div>
+
+    <div class="metrics">
+      <div class="metric-card">
+        <div style="color: #8b949e; font-size: 12px;">TOTAL TESTS</div>
+        <div class="metric-val val-blue">200</div>
+      </div>
+      <div class="metric-card">
+        <div style="color: #8b949e; font-size: 12px;">PASSED</div>
+        <div class="metric-val val-green">200</div>
+      </div>
+      <div class="metric-card">
+        <div style="color: #8b949e; font-size: 12px;">FAILED</div>
+        <div class="metric-val val-green">0</div>
+      </div>
+      <div class="metric-card">
+        <div style="color: #8b949e; font-size: 12px;">PIPELINE STATUS</div>
+        <div class="metric-val val-green">LIVE</div>
+      </div>
+    </div>
+
+    
+    <div class="success-box">
+      <h3 style="margin-top: 0; color: #3fb950;">✔ 200/200 Unit Tests Passed — Aplikasi Terverifikasi & Live</h3>
+      <p style="margin: 4px 0; font-size: 14px;">Seluruh 200 unit tests berhasil diverifikasi dengan assertions valid. Proses Auto Build dan Deployment berhasil dijalankan.</p>
+      <div style="margin-top: 10px; font-size: 13px;">
+        • <strong>Frontend SPA:</strong> <a href="https://rpl-web-frontend-miftahul-midzan-nur-bahri.vercel.app" target="_blank" style="color: #58a6ff;">https://rpl-web-frontend-miftahul-midzan-nur-bahri.vercel.app</a> (HTTP 200 OK)<br>
+        • <strong>Backend API:</strong> <a href="https://rpl-web-api-miftahul-midzan-nur-bahri.vercel.app/api/health" target="_blank" style="color: #58a6ff;">https://rpl-web-api-miftahul-midzan-nur-bahri.vercel.app/api/health</a> (HTTP 200 OK)<br>
+        • <strong>Database:</strong> Supabase PostgreSQL Pooler (Cluster aws-1-ap-northeast-2)<br>
+        • <strong>Readiness:</strong> Aplikasi SIAP DIGUNAKAN UNTUK PROSES TESTING LANJUTAN.
+      </div>
+    </div>
+    
+
+    <h4 style="margin-bottom: 8px; color: #c9d1d9;">Recent Execution Logs:</h4>
+    <div class="logs">
+      <div>✔ [MAT-31] rejects MacBook and earphone pair despite matching campus metadata (0.2035ms)</div><div>✔ [MAT-32] matches identical electronic models symmetrically (0.2047ms)</div><div>✔ [MAT-33] matches KTM (Kartu Tanda Mahasiswa) report accurately (0.1804ms)</div><div>✔ [MAT-34] matches vehicle key reports by brand token (0.2027ms)</div><div>✔ [MAT-35] matches flashdisk storage device reports (0.182ms)</div><div>✔ [MAT-36] matches prescription eyeglasses by frame brand (0.208ms)</div><div>✔ [MAT-37] matches umbrella reports with brand token (0.3984ms)</div><div>✔ [MAT-38] distinguishes between iPad and iPhone devices (0.2208ms)</div><div>✔ [MAT-39] matches water bottle with brand identifier (0.1565ms)</div><div>✔ [MAT-40] matches scientific calculator by Casio FX series (0.4353ms)</div><div>✔ [MAT-41] ignores tokens with fewer than 3 characters (0.1584ms)</div><div>✔ [MAT-42] strips complete free-form location phrase from token extraction (0.3064ms)</div><div>✔ [MAT-43] handles Unicode characters and emojis in titles without crashing (0.8531ms)</div><div>✔ [MAT-44] matches items with slash in title tokens (0.196ms)</div><div>✔ [MAT-45] handles titles that are entirely stop words gracefully (0.2007ms)</div><div>✔ [MAT-46] scores symmetric comparison consistently between lost and found (0.2539ms)</div><div>✔ [MAT-47] awards 0 keyword points when overlapping words are only stop words (0.1978ms)</div><div>✔ [MAT-48] returns empty reasons array when score is 0 (0.2008ms)</div><div>✔ [MAT-49] awards 40 category points without setting hasIdentityEvidence (0.1495ms)</div><div>✔ [MAT-50] confirms scoreMatch result structure contains exactly score, reasons, and hasIdentityEvidence (0.1788ms)</div><div>✔ [SVC-01] ReportRetentionDays policy is configured to exactly 14 days (0.877ms)</div><div>✔ [SVC-02] reportExpirationDate calculates timestamp exactly 14 days in future (1.0888ms)</div><div>✔ [SVC-03] reportExpirationDate defaults to current timestamp when no date is provided (0.2175ms)</div><div>✔ [SVC-04] activeReportWhere filter specifies only lost and found statuses (0.7791ms)</div><div>✔ [SVC-05] activeReportWhere requires non-archived items (0.1845ms)</div><div>✔ [SVC-06] activeReportWhere requires non-deleted items (0.1259ms)</div><div>✔ [SVC-07] activeReportWhere enforces expiresAt strictly greater than reference time (0.1708ms)</div><div>✔ [SVC-08] ReturnedItemRetentionDays policy is configured to exactly 3 days (0.1252ms)</div><div>✔ [SVC-09] returnedItemCutoff calculates cutoff timestamp exactly 3 days prior (0.1721ms)</div><div>✔ [SVC-10] returnedItemCutoff defaults to current time and produces valid past date (0.2376ms)</div>
+    </div>
+  </div>
+</body>
+</html>

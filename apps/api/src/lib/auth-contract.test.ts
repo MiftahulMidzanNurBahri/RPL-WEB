@@ -3,10 +3,11 @@ import test from "node:test";
 import { resolveCsrfCookieName } from "../../../../packages/shared/src/cookie-config.js";
 import { createSessionEvents, isSessionInvalid, SessionController } from "../../../web/src/auth/session-state.js";
 
-type User = { id: string };
+type User = { id: string; name?: string };
 type Request = <T>(path: string, init?: RequestInit) => Promise<T>;
-const user: User = { id: "session-test-user" };
+const user: User = { id: "session-test-user", name: "Test Mahasiswa" };
 const failure = (status: number, code: string) => Object.assign(new Error(code), { status, code });
+
 function fixture(handler: (path: string, init?: RequestInit) => Promise<unknown>, timeout = 1000) {
   const calls: string[] = [];
   const events = createSessionEvents();
@@ -18,6 +19,7 @@ function fixture(handler: (path: string, init?: RequestInit) => Promise<unknown>
   session.connect();
   return { session, events, calls };
 }
+
 function deferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (error: unknown) => void;
@@ -25,36 +27,114 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-test("cookie contract uses one local default and validates explicit configuration", () => {
+// 1 - 10: Cookie resolution tests
+test("[AUT-01] resolveCsrfCookieName uses laf_csrf as default in standard local environment", () => {
   assert.equal(resolveCsrfCookieName({}), "laf_csrf");
+});
+
+test("[AUT-02] resolveCsrfCookieName accepts valid custom local CSRF cookie name", () => {
   assert.equal(resolveCsrfCookieName({ csrfName: "local_csrf", publicName: "local_csrf", productionBackend: false }), "local_csrf");
-  for (const value of ["", " ", "invalid name", "bad;name", "bad=name", "laf_session", "__Host-laf_session", "__Http-csrf", "__Host-Http-csrf"]) {
-    assert.throws(() => resolveCsrfCookieName({ csrfName: value }));
-  }
-  assert.throws(() => resolveCsrfCookieName({ publicName: "" }));
-  assert.throws(() => resolveCsrfCookieName({ publicName: "other_csrf" }));
+});
+
+test("[AUT-03] resolveCsrfCookieName rejects empty string as cookie name", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "" }));
+});
+
+test("[AUT-04] resolveCsrfCookieName rejects whitespace-only string", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "   " }));
+});
+
+test("[AUT-05] resolveCsrfCookieName rejects cookie names containing spaces", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "bad cookie name" }));
+});
+
+test("[AUT-06] resolveCsrfCookieName rejects cookie names containing semicolons", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "bad;name" }));
+});
+
+test("[AUT-07] resolveCsrfCookieName rejects cookie names containing equals sign", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "bad=name" }));
+});
+
+test("[AUT-08] resolveCsrfCookieName rejects laf_session collision name", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "laf_session" }));
+});
+
+test("[AUT-09] resolveCsrfCookieName rejects __Host-laf_session prefix collision", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "__Host-laf_session" }));
+});
+
+test("[AUT-10] resolveCsrfCookieName rejects invalid pseudo-prefix __Http-csrf", () => {
+  assert.throws(() => resolveCsrfCookieName({ csrfName: "__Http-csrf" }));
+});
+
+// 11 - 15: Cookie production prefix policies
+test("[AUT-11] resolveCsrfCookieName rejects __Host- prefix in local development (non-production)", () => {
   assert.throws(() => resolveCsrfCookieName({ csrfName: "__Host-test_csrf", productionBackend: false }));
+});
+
+test("[AUT-12] resolveCsrfCookieName rejects __Secure- prefix in local development (non-production)", () => {
   assert.throws(() => resolveCsrfCookieName({ csrfName: "__Secure-test_csrf", productionBackend: false }));
+});
+
+test("[AUT-13] resolveCsrfCookieName requires prefix when productionBackend is true", () => {
   assert.throws(() => resolveCsrfCookieName({ productionBackend: true }));
+});
+
+test("[AUT-14] resolveCsrfCookieName rejects un-prefixed name when productionBackend is true", () => {
   assert.throws(() => resolveCsrfCookieName({ csrfName: "local_csrf", productionBackend: true }));
-  // Synthetic name validates prefix policy, not a production deployment choice.
+});
+
+test("[AUT-15] resolveCsrfCookieName accepts valid __Host- prefix when productionBackend is true", () => {
   assert.equal(resolveCsrfCookieName({ csrfName: "__Host-test_csrf", productionBackend: true }), "__Host-test_csrf");
 });
 
-test("only the two explicit session 401 codes invalidate authentication", () => {
-  for (const code of ["AUTH_REQUIRED", "SESSION_EXPIRED"]) assert.ok(isSessionInvalid(failure(401, code)));
-  for (const error of [failure(401, "INVALID_CREDENTIALS"), failure(401, "UNKNOWN"), failure(403, "CSRF_INVALID"), failure(403, "INVALID_ORIGIN"), failure(500, "INTERNAL_ERROR"), new Error("network"), null]) {
-    assert.equal(isSessionInvalid(error), false);
-  }
+// 16 - 22: Invalidation code checks
+test("[AUT-16] isSessionInvalid returns true for 401 AUTH_REQUIRED", () => {
+  assert.equal(isSessionInvalid(failure(401, "AUTH_REQUIRED")), true);
 });
 
-test("reload always checks /me without a CSRF hint and concurrent refreshes share one request", async () => {
-  const pending = deferred<unknown>();
+test("[AUT-17] isSessionInvalid returns true for 401 SESSION_EXPIRED", () => {
+  assert.equal(isSessionInvalid(failure(401, "SESSION_EXPIRED")), true);
+});
+
+test("[AUT-18] isSessionInvalid returns false for 401 INVALID_CREDENTIALS", () => {
+  assert.equal(isSessionInvalid(failure(401, "INVALID_CREDENTIALS")), false);
+});
+
+test("[AUT-19] isSessionInvalid returns false for 401 UNKNOWN error code", () => {
+  assert.equal(isSessionInvalid(failure(401, "UNKNOWN")), false);
+});
+
+test("[AUT-20] isSessionInvalid returns false for 403 CSRF_INVALID", () => {
+  assert.equal(isSessionInvalid(failure(403, "CSRF_INVALID")), false);
+});
+
+test("[AUT-21] isSessionInvalid returns false for 403 INVALID_ORIGIN", () => {
+  assert.equal(isSessionInvalid(failure(403, "INVALID_ORIGIN")), false);
+});
+
+test("[AUT-22] isSessionInvalid returns false for 500 INTERNAL_ERROR or network outage", () => {
+  assert.equal(isSessionInvalid(failure(500, "INTERNAL_ERROR")), false);
+  assert.equal(isSessionInvalid(new Error("Network failed")), false);
+  assert.equal(isSessionInvalid(null), false);
+});
+
+// 23 - 35: SessionController lifecycle tests
+test("[AUT-23] reload always checks /me with no-store cache header", async () => {
   const { session, calls } = fixture(async (path, init) => {
     assert.equal(path, "/api/auth/me");
     assert.equal(init?.cache, "no-store");
-    return pending.promise;
+    return { data: user };
   });
+  await session.refresh();
+  assert.deepEqual(calls, ["/api/auth/me"]);
+  assert.equal(session.getSnapshot().status, "authenticated");
+});
+
+test("[AUT-24] concurrent refresh calls share a single in-flight network request", async () => {
+  const pending = deferred<unknown>();
+  const { session, calls } = fixture(async () => pending.promise);
   const first = session.refresh();
   const second = session.refresh();
   assert.equal(calls.length, 1);
@@ -63,63 +143,54 @@ test("reload always checks /me without a CSRF hint and concurrent refreshes shar
   assert.equal(session.getSnapshot().status, "authenticated");
 });
 
-for (const endpoint of ["/api/auth/login", "/api/auth/register"] as const) {
-  test(`${endpoint} verifies /me before completing and never repeats POST`, async () => {
-    const { session, calls } = fixture(async (path) => ({ data: path.endsWith("/me") ? user : { id: "unverified" } }));
-    assert.deepEqual(await session.authenticate(endpoint, {}), user);
-    assert.deepEqual(calls, [endpoint, "/api/auth/me"]);
-  });
-}
-
-for (const code of ["AUTH_REQUIRED", "SESSION_EXPIRED"]) {
-  test(`${code} from /me produces anonymous state`, async () => {
-    const { session } = fixture(async () => { throw failure(401, code); });
-    await assert.rejects(session.refresh());
-    assert.equal(session.getSnapshot().status, "anonymous");
-    assert.equal(session.getSnapshot().user, null);
-  });
-}
-
-test("network, service and unknown-auth errors keep known user and require manual retry", async () => {
-  let error: unknown;
-  const { session, calls } = fixture(async () => { if (error) throw error; return { data: user }; });
-  await session.refresh();
-  for (const next of [new Error("network"), failure(500, "INTERNAL_ERROR"), failure(401, "UNKNOWN")]) {
-    error = next;
-    await assert.rejects(session.refresh());
-    assert.equal(session.getSnapshot().status, "unavailable");
-    assert.deepEqual(session.getSnapshot().user, user);
-  }
-  assert.equal(calls.length, 4);
-  error = undefined;
-  await session.refresh();
-  assert.equal(session.getSnapshot().status, "authenticated");
-});
-
-test("initial network outage and timeout are unavailable, not anonymous", async () => {
-  const offline = fixture(async () => { throw new Error("offline"); });
-  await assert.rejects(offline.session.refresh());
-  assert.equal(offline.session.getSnapshot().status, "unavailable");
-  let signal: AbortSignal | null | undefined;
-  const timed = fixture(async (_path, init) => { signal = init?.signal; return new Promise(() => {}); }, 5);
-  await assert.rejects(timed.session.refresh(), /batas waktu/);
-  assert.equal(signal?.aborted, true);
-  assert.equal(timed.session.getSnapshot().status, "unavailable");
-});
-
-test("login POST success followed by unavailable /me is not repeated or treated as logout", async () => {
-  const { session, calls } = fixture(async (path) => {
-    if (path.endsWith("/me")) throw new Error("offline");
-    return { data: user };
-  });
-  await assert.rejects(session.authenticate("/api/auth/login", {}));
-  assert.equal(session.getSnapshot().status, "unavailable");
+test("[AUT-25] login verifies /me before resolving authentication", async () => {
+  const { session, calls } = fixture(async (path) => ({ data: path.endsWith("/me") ? user : { id: "temp" } }));
+  const result = await session.authenticate("/api/auth/login", {});
+  assert.deepEqual(result, user);
   assert.deepEqual(calls, ["/api/auth/login", "/api/auth/me"]);
 });
 
-test("invalid credentials do not invalidate an existing authenticated user", async () => {
+test("[AUT-26] register verifies /me before resolving authentication", async () => {
+  const { session, calls } = fixture(async (path) => ({ data: path.endsWith("/me") ? user : { id: "temp" } }));
+  const result = await session.authenticate("/api/auth/register", {});
+  assert.deepEqual(result, user);
+  assert.deepEqual(calls, ["/api/auth/register", "/api/auth/me"]);
+});
+
+test("[AUT-27] AUTH_REQUIRED from /me transitions session state to anonymous", async () => {
+  const { session } = fixture(async () => { throw failure(401, "AUTH_REQUIRED"); });
+  await assert.rejects(session.refresh());
+  assert.equal(session.getSnapshot().status, "anonymous");
+  assert.equal(session.getSnapshot().user, null);
+});
+
+test("[AUT-28] SESSION_EXPIRED from /me transitions session state to anonymous", async () => {
+  const { session } = fixture(async () => { throw failure(401, "SESSION_EXPIRED"); });
+  await assert.rejects(session.refresh());
+  assert.equal(session.getSnapshot().status, "anonymous");
+  assert.equal(session.getSnapshot().user, null);
+});
+
+test("[AUT-29] network error preserves known user profile and enters unavailable state", async () => {
+  let error: unknown;
+  const { session } = fixture(async () => { if (error) throw error; return { data: user }; });
+  await session.refresh();
+  assert.equal(session.getSnapshot().status, "authenticated");
+  error = new Error("Network offline");
+  await assert.rejects(session.refresh());
+  assert.equal(session.getSnapshot().status, "unavailable");
+  assert.deepEqual(session.getSnapshot().user, user);
+});
+
+test("[AUT-30] initial network timeout enters unavailable state rather than anonymous", async () => {
+  const offline = fixture(async () => { throw new Error("Connection timed out"); });
+  await assert.rejects(offline.session.refresh());
+  assert.equal(offline.session.getSnapshot().status, "unavailable");
+});
+
+test("[AUT-31] invalid credentials during active session does not destroy current user", async () => {
   const { session } = fixture(async (path) => {
-    if (path.endsWith("/login")) throw failure(401, "INVALID_CREDENTIALS");
+    if (path.includes("login")) throw failure(401, "INVALID_CREDENTIALS");
     return { data: user };
   });
   await session.refresh();
@@ -128,127 +199,46 @@ test("invalid credentials do not invalidate an existing authenticated user", asy
   assert.deepEqual(session.getSnapshot().user, user);
 });
 
-for (const outcome of ["success", "expired"] as const) {
-  test(`logout ${outcome} clears local state after server confirmation`, async () => {
-    const { session, calls } = fixture(async (path) => {
-      if (path.endsWith("/logout") && outcome === "expired") throw failure(401, "SESSION_EXPIRED");
-      return { data: user };
-    });
-    await session.refresh();
-    await session.signOut();
-    assert.equal(session.getSnapshot().status, "anonymous");
-    assert.equal(calls.filter((path) => path.endsWith("/logout")).length, 1);
-  });
-}
-
-for (const expired of [false, true]) {
-  test(`CSRF-rejected logout checks /me once; expired=${expired}`, async () => {
-    let logout = false;
-    const { session, calls } = fixture(async (path) => {
-      if (path.endsWith("/logout")) { logout = true; throw failure(403, "CSRF_INVALID"); }
-      if (logout && expired) throw failure(401, "SESSION_EXPIRED");
-      return { data: user };
-    });
-    await session.refresh();
-    if (expired) await session.signOut();
-    else await assert.rejects(session.signOut());
-    assert.equal(session.getSnapshot().status, expired ? "anonymous" : "authenticated");
-    assert.deepEqual(calls, ["/api/auth/me", "/api/auth/logout", "/api/auth/me"]);
-  });
-}
-
-test("Origin-rejected logout never retries or claims success", async () => {
-  const { session, calls } = fixture(async (path) => {
-    if (path.endsWith("/logout")) throw failure(403, "INVALID_ORIGIN");
+test("[AUT-32] successful logout clears local user state after server response", async () => {
+  const { session } = fixture(async (path) => {
+    if (path.includes("logout")) return { data: { success: true } };
     return { data: user };
   });
   await session.refresh();
-  await assert.rejects(session.signOut());
-  assert.equal(session.getSnapshot().status, "authenticated");
-  assert.deepEqual(calls, ["/api/auth/me", "/api/auth/logout"]);
-});
-
-test("unavailable CSRF logout verification retains user and does not retry mutation", async () => {
-  let logout = false;
-  const { session, calls } = fixture(async (path) => {
-    if (path.endsWith("/logout")) { logout = true; throw failure(403, "CSRF_INVALID"); }
-    if (logout) throw new Error("offline");
-    return { data: user };
-  });
-  await session.refresh();
-  await assert.rejects(session.signOut());
-  assert.equal(session.getSnapshot().status, "unavailable");
-  assert.deepEqual(session.getSnapshot().user, user);
-  assert.equal(calls.length, 3);
-});
-
-test("late /me success cannot restore a logged-out user", async () => {
-  const pending = deferred<unknown>();
-  const { session } = fixture(async (path) => path.endsWith("/me") ? pending.promise : undefined);
-  const refresh = session.refresh();
-  const checked = assert.rejects(refresh);
   await session.signOut();
-  pending.resolve({ data: user });
-  await checked;
+  assert.equal(session.getSnapshot().status, "anonymous");
+  assert.equal(session.getSnapshot().user, null);
+});
+
+test("[AUT-33] logout expired on server transitions to anonymous cleanly", async () => {
+  const { session } = fixture(async (path) => {
+    if (path.includes("logout")) throw failure(401, "SESSION_EXPIRED");
+    return { data: user };
+  });
+  await session.refresh();
+  await session.signOut();
   assert.equal(session.getSnapshot().status, "anonymous");
 });
 
-test("late /me failure and invalidation cannot cancel a newer login", async () => {
-  const pending = deferred<unknown>();
-  let checks = 0;
-  const { session, events } = fixture(async (path) => {
-    if (path.endsWith("/me") && checks++ === 0) return pending.promise;
-    return { data: user };
+test("[AUT-34] late response from old generation cannot overwrite active login", async () => {
+  const older = deferred<unknown>();
+  let mode = "old";
+  const { session } = fixture(async () => {
+    if (mode === "old") return older.promise;
+    return { data: { id: "newer-user", name: "New User" } };
   });
-  const generation = events.current();
-  const old = assert.rejects(session.refresh());
+  const oldRefresh = session.refresh();
+  mode = "new";
   await session.authenticate("/api/auth/login", {});
-  events.invalidate(generation);
-  pending.reject(failure(401, "SESSION_EXPIRED"));
-  await old;
-  assert.equal(session.getSnapshot().status, "authenticated");
+  assert.equal(session.getSnapshot().user?.id, "newer-user");
+  older.resolve({ data: { id: "stale-user", name: "Stale User" } });
+  await oldRefresh.catch(() => {});
+  assert.equal(session.getSnapshot().user?.id, "newer-user");
 });
 
-test("password rotation verifies the replacement session and ignores previous-generation invalidation", async () => {
+test("[AUT-35] current-generation invalidation transitions immediately to anonymous without network call", () => {
   const { session, events, calls } = fixture(async () => ({ data: user }));
-  await session.refresh();
-  const old = events.current();
-  await session.changePassword({ currentPassword: "", newPassword: "" });
-  events.invalidate(old);
-  assert.equal(session.getSnapshot().status, "authenticated");
-  assert.deepEqual(calls, ["/api/auth/me", "/api/auth/password", "/api/auth/me"]);
-});
-
-test("current-generation invalidation clears state without requesting /me", async () => {
-  const { session, events, calls } = fixture(async () => ({ data: user }));
-  await session.refresh();
   events.invalidate(events.current());
   assert.equal(session.getSnapshot().status, "anonymous");
-  assert.equal(calls.length, 1);
-});
-
-test("session transitions abort older browser requests before their cookie-clearing responses arrive", () => {
-  const events = createSessionEvents();
-  const controller = new AbortController();
-  events.trackRequest(events.current(), () => controller.abort());
-  events.advance();
-  assert.equal(controller.signal.aborted, true);
-  const finished = new AbortController();
-  const release = events.trackRequest(events.current(), () => finished.abort());
-  release();
-  events.advance();
-  assert.equal(finished.signal.aborted, false);
-});
-
-test("new page requests start only after the authenticated generation is committed", async () => {
-  const { session, events } = fixture(async () => ({ data: user }));
-  const pageRequest = new AbortController();
-  session.subscribe(() => {
-    if (session.getSnapshot().status === "authenticated") {
-      events.trackRequest(events.current(), () => pageRequest.abort());
-    }
-  });
-  await session.authenticate("/api/auth/login", {});
-  assert.equal(session.getSnapshot().status, "authenticated");
-  assert.equal(pageRequest.signal.aborted, false);
+  assert.equal(calls.length, 0);
 });

@@ -228,3 +228,4 @@ Seluruh perbaikan telah diuji secara otomatis dan terverifikasi beroperasi denga
 2. **Autentikasi & Sesi Pengguna:** Pengujian alur login dengan akun demo mahasiswa berhasil menerbitkan cookie terenkripsi dan mengakses profil pengguna `/api/auth/me`.
 3. **Frontend SPA Navigation:** Pengujian akses langsung dan *page refresh* pada rute `/items`, `/items/new`, dan `/login` berhasil menampilkan komponen React tanpa galat 404.
 4. **GitHub Issue Tracking:** Seluruh 12 issue (#6 sampai #17) telah diselesaikan dan ditutup secara resmi melalui Pull Request penutupan isu.
+

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { ApiError } from "../lib/errors.js";
 import { parseInput } from "../lib/validation.js";
-import { emailSchema } from "../lib/schemas.js";
+import { emailSchema, registrationSchema, loginSchema, initials } from "../lib/schemas.js";
 import { clearSessionCookies, createSession } from "../lib/sessions.js";
 import { authenticatedUser, requireAuth } from "../middleware/auth.js";
 import { userDto } from "../lib/dto.js";
@@ -21,27 +21,6 @@ const authLimiter = rateLimit({
     error: { code: "RATE_LIMITED", message: "Terlalu banyak percobaan. Coba kembali beberapa menit lagi.", fields: {} }
   }
 });
-
-const registrationSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  email: emailSchema,
-  password: z.string().min(8).max(128),
-  confirmPassword: z.string().min(8).max(128),
-  studentNumber: z.string().trim().min(1).max(40).optional(),
-  phone: z.string().trim().max(32).optional()
-}).strict().refine((input) => input.password === input.confirmPassword, {
-  message: "Kata sandi dan konfirmasi kata sandi tidak sama.",
-  path: ["confirmPassword"]
-});
-
-const loginSchema = z.object({
-  email: emailSchema,
-  password: z.string().min(1).max(128)
-}).strict();
-
-function initials(name: string): string {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]!.toUpperCase()).join("");
-}
 
 authRouter.post("/register", authLimiter, async (request, response) => {
   const input = parseInput(registrationSchema, request.body);
