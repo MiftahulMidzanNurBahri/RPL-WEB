@@ -1,6 +1,7 @@
 {
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://rpl-web-api-miftahul-midzan-nur-bahri.vercel.app/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
