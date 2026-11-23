@@ -73,12 +73,24 @@ Jalankan perintah berikut dari folder utama proyek. Backend menggunakan PostgreS
 
 Runtime dan migrasi Prisma menggunakan `DATABASE_URL`.
 
+### Deployment Production (Vercel & Supabase)
+
+Aplikasi telah berhasil dideploy secara penuh ke lingkungan produksi cloud:
+- **Frontend SPA (Vercel):** [https://rpl-web-frontend-miftahul-midzan-nur-bahri.vercel.app](https://rpl-web-frontend-miftahul-midzan-nur-bahri.vercel.app)
+- **Backend API (Vercel):** [https://rpl-web-api-miftahul-midzan-nur-bahri.vercel.app](https://rpl-web-api-miftahul-midzan-nur-bahri.vercel.app)
+- **Database:** Supabase PostgreSQL Managed Database (Connection Pooler Supavisor)
+
+Dokumentasi komprehensif mengenai investigasi dan resolusi 12 bug teknis pasca-deployment dapat dilihat pada:
+- Dokumen Teknis: [POST_DEPLOYMENT_ISSUES_REPORT.md](POST_DEPLOYMENT_ISSUES_REPORT.md)
+- GitHub Issues Tracker: [GitHub Issues #6 - #17](https://github.com/MiftahulMidzanNurBahri/RPL-WEB/issues)
+
 ---
 
 ## Daftar Isi
 
 - [Menjalankan Aplikasi Full-stack Saat Ini](#menjalankan-aplikasi-full-stack-saat-ini)
 - [Menjalankan Backend](#menjalankan-backend)
+- [Deployment Production (Vercel & Supabase)](#deployment-production-vercel--supabase)
 - [Ruang Lingkup dan Batasan Pengguna](#ruang-lingkup-dan-batasan-pengguna)
 - [Big Picture Permasalahan](#big-picture-permasalahan)
 - [Alasan Pemilihan Judul](#alasan-pemilihan-judul)
