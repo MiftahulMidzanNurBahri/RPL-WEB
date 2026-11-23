@@ -14,16 +14,27 @@ if (
   throw new Error("Set SESSION_SECRET to a random value of at least 32 characters.");
 }
 
-const server = app.listen(port, "0.0.0.0", () => {
-  console.log(`Lost And Found API listening on http://localhost:${port}`);
-});
+let server: ReturnType<typeof app.listen> | undefined;
+
+if (!process.env.VERCEL) {
+  server = app.listen(port, "0.0.0.0", () => {
+    console.log(`Lost And Found API listening on http://localhost:${port}`);
+  });
+}
 
 async function shutdown(): Promise<void> {
-  server.close(async () => {
+  if (server) {
+    server.close(async () => {
+      await prisma.$disconnect();
+      process.exit(0);
+    });
+  } else {
     await prisma.$disconnect();
     process.exit(0);
-  });
+  }
 }
 
 process.on("SIGINT", () => void shutdown());
 process.on("SIGTERM", () => void shutdown());
+
+export default app;
